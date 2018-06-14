@@ -1,6 +1,7 @@
 import React from 'react';
 import './index.css';
 import {} from './parser/parser'
+import {AssignmentNode, ConditionNode, CycleNode} from "./parser/tree";
 
 
 export class Scroll extends React.Component{
@@ -46,20 +47,40 @@ export class ProgramBlock extends React.Component{
 
     printNode(node, alone) {
 
-        let res = node.iscondition ?
-            <div>
+        let res;
 
-            </div>
-            : node.iscycle ?
+        if (node instanceof AssignmentNode) {
+
+            let y = node.varLeft;
+            let x1 = node.var1 ? node.var1 : node.const1;
+            let sign = node.sign;
+            let x2 = node.var2 ? node.var2 : node.const2;
+
+            res =
                 <div>
-                    (WHINV {node.invVar1 } EOI {  {/*condition*/}   }
-                    DO
-                    {!alone ? printNode(node.body) : <ProgramBlock node={node.body} alone={false}/>}
+                    {y} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''}
+                </div>
+        } else if (node instanceof CycleNode) {
+
+            let inv1 = node.invVar1 ? node.invVar1 : node.invConst1;
+            let invSign = node.invSign;
+            let inv2 = node.invVar2 ? node.invVar2 : node.invConst2;
+            let comp1 = node.compVar1 ? node.compVar1 : node.compConst1;
+            let compSign = node.compSign;
+            let comp2 = node.compVar2 ? node.compVar2 : node.compConst2;
+
+            res =
+                <div>
+                    (WHINV {inv1} {invSign} {inv2} EOI {comp1} {compSign} {comp2} DO
+                      {!alone ? printNode(node.body) : <ProgramBlock node={node.body} alone={false}/>}
                     )
                 </div>
-                :   <div>
+        }
 
-                </div>;
+            : (node instanceof ConditionNode) ?
+            <div>
+
+            </div> : ;
 
         if (!alone) res += printNode(node.next, false);
 
