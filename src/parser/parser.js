@@ -1,17 +1,64 @@
 import {Tree, AssignmentNode, ConditionNode, CycleNode} from "./tree";
 
+
+/*
+    BNF tokens:
+
+    <expression_sign> ::= * |
+                          + |
+                          -
+
+     <comparison_sign> ::= = |
+                          >  |
+                          <  |
+                          ~= |
+                          >= |
+                          <=
+*/
+
+
 /**
- * <expression_sign> ::= * |
- *                       + |
- *                       -
+ * Picks first appropriate parse function if any, otherwise return exception of a function that parsed furthest
  *
- * <comparison_sign> ::= = |
- *                       > |
- *                       < |
- *                       ~= |
- *                       >= |
- *                       <=
+ * @param {[function]} options - array of parse functions
+ * @param messageOnEqual - exception message if all functions parsed the same number of chars before an exception
+ * @returns {*}
+ *      =======================|=====\ token found /=====|===================\ token not found /========================
+ *      {string} node          | null                    | null
+ *      {string} program       | The rest of the program | null
+ *                             |     without found token |
+ *                             |                         |===\ excPosFromEnd equal /==|==\ excPosFromEnd not equal /====
+ *      {number} excPosFromEnd | null                    | excPosFromEnd from options | min excPosFromEnd from options
+ *      {string} exception     | null                    | messageOnEqual             | exception with min excPosFromEnd
  */
+function parseBestOption(options, messageOnEqual) {
+
+    if (options.length < 2) throw '[options] have to contain more than one function';
+    let excepted = [];
+    let parsed = null;
+
+    do {
+        parsed = options.pop()();
+        excepted.push(parsed);
+    } while (parsed.exception && (options.length > 0));
+
+    if (parsed.exception) {
+
+        excepted = excepted.sort((a,b) => a.excPosFromEnd - b.excPosFromEnd);
+
+        if (excepted[0].excPosFromEnd === excepted[excepted.length-1].excPosFromEnd) {
+            return {
+                exception: messageOnEqual,
+                excPosFromEnd: excepted[0].excPosFromEnd
+            }
+        } else {
+            return excepted[0];
+        }
+    } else {
+        return parsed
+    }
+}
+
 
 /**
  * <constant>
@@ -85,6 +132,65 @@ function parseAsVariableOrConstant(program) {
         ],
         'Expected a variable or constant'
     );
+}
+
+
+/**
+ * <comparison> ::= <const_or_var> <bln> <relation> <bln> <const_or_var>
+ *
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
+ * @returns {*}
+ *      ============================|===============\ token found /===============|=======\ token not found /===========
+ *      {string} var1 / const1      | <const_or_var>                              | null
+ *      {string} sign               | <comparison_sign>                           | null
+ *      {string} var2 / const2      | <const_or_var>                              | null
+ *      {string} program            | The rest of the program without found token | null
+ *      {string} exception          | null                                        | Exception message
+ *      {number} excPosFromEnd      | null                                        | Number of chars between the end of
+ *                                  |                                             |      the program and the exception
+ */
+function parseAsComparison(program) {
+
+    let res, var1, const1, sign, var2, const2;
+
+    // remove spaces before expression
+    let regexExpression1 = /^\s*([\s\S]*)$/;
+    res = program.match(regexExpression1);
+    program = res[1];
+
+
+    res = parseAsVariableOrConstant(program);
+    if (res.exception) return res;
+    var1 = res.variable;
+    const1 = res.constant;
+    program = res.program;
+
+
+    let regexExpression2 = /^\s*(=|>|<|~\s*=|>\s*=|<\s*=)?([\s\S]*)$/;
+    res = program.match(regexExpression2);
+    if (!res) return {
+        exception: 'Expected a comparison sign',
+        excPosFromEnd: program.length
+    };
+    sign = res[1].replace(/\s+/g, '');
+    program = res[2];
+
+
+    res = parseAsVariableOrConstant(program);
+    if (res.exception) return res;
+    var2 = res.variable;
+    const2 = res.constant;
+    program = res.program;
+
+
+    return({
+        var1: var1,
+        var2: var2,
+        sign: sign,
+        const1: const1,
+        const2: const2,
+        program: program
+    });
 }
 
 
@@ -207,64 +313,6 @@ function parseAsAssignment(program) {
 
 
 /**
- * <comparison> ::= <const_or_var> <bln> <relation> <bln> <const_or_var>
- *
- * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @returns {*}
- *      ============================|===============\ token found /===============|=======\ token not found /===========
- *      {string} var1 / const1      | <const_or_var>                              | null
- *      {string} sign               | <comparison_sign>                           | null
- *      {string} var2 / const2      | <const_or_var>                              | null
- *      {string} program            | The rest of the program without found token | null
- *      {string} exception          | null                                        | Exception message
- *      {number} excPosFromEnd      | null                                        | Number of chars between the end of
- *                                  |                                             |      the program and the exception
- */
-function parseAsComparison(program) {
-
-    let res, var1, const1, sign, var2, const2;
-
-    // remove spaces before expression
-    let regexExpression1 = /^\s*([\s\S]*)$/;
-    res = program.match(regexExpression1);
-    program = res[1];
-
-
-    res = parseAsVariableOrConstant(program);
-    if (res.exception) return res;
-    var1 = res.variable;
-    const1 = res.constant;
-    program = res.program;
-
-
-    let regexExpression2 = /^\s*(=|>|<|~\s*=|>\s*=|<\s*=)?([\s\S]*)$/;
-    res = program.match(regexExpression2);
-    if (!res) return {
-        exception: 'Expected a comparison sign',
-        excPosFromEnd: program.length
-    };
-    sign = res[1].replace(/\s+/g, '');
-    program = res[2];
-
-
-    res = parseAsVariableOrConstant(program);
-    if (res.exception) return res;
-    var2 = res.variable;
-    const2 = res.constant;
-    program = res.program;
-
-
-    return({
-        var1: var1,
-        var2: var2,
-        sign: sign,
-        const1: const1,
-        const2: const2,
-        program: program
-    });
-}
-
-/**
  * <ConditionNode> ::=
  *   ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
  *
@@ -359,31 +407,6 @@ function parseAsCondition(program) {
         node: conditionNode,
         program: program
     };
-}
-
-
-/**
- * <*Node> | null
- *
- * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @returns {*}
- *      =======================|==========\ token found /=========================|=======\ token not found /===========
- *      {string} program       | The rest of the program without found token      | null
- *      {string} exception     | null                                             | Exception message
- *      {number} excPosFromEnd | null                                             | Number of chars between the end of
- *                             |                                                  |      the program and the exception
- *                             |========\ *Node found /=====|====\ SKIP found /===|
- *      {*Node} node           | Condition/Assignment/Cycle | null                | null
- */
-function parseNextNodeOrSkip(program) {
-
-    return parseBestOption(
-        [
-            () => parseAsSkip(program),
-            () => parseNextNode(program)
-        ],
-        'Expected Condition/Assignment/Cycle/\'SKIP\''
-    );
 }
 
 
@@ -498,6 +521,7 @@ function parseAsCycle(program) {
     };
 }
 
+
 /**
  * <Skip> ::= SKIP
  *
@@ -526,46 +550,29 @@ function parseAsSkip(program) {
     };
 }
 
+
 /**
- * Picks first appropriate parse function if any, otherwise return exception of a function that parsed furthest
+ * <*Node> | null
  *
- * @param {[function]} options - array of parse functions
- * @param messageOnEqual - exception message if all functions parsed the same number of chars before an exception
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
  * @returns {*}
- *      =======================|=====\ token found /=====|===================\ token not found /========================
- *      {string} node          | null                    | null
- *      {string} program       | The rest of the program | null
- *                             |     without found token |
- *                             |                         |===\ excPosFromEnd equal /==|==\ excPosFromEnd not equal /====
- *      {number} excPosFromEnd | null                    | excPosFromEnd from options | min excPosFromEnd from options
- *      {string} exception     | null                    | messageOnEqual             | exception with min excPosFromEnd
+ *      =======================|==========\ token found /=========================|=======\ token not found /===========
+ *      {string} program       | The rest of the program without found token      | null
+ *      {string} exception     | null                                             | Exception message
+ *      {number} excPosFromEnd | null                                             | Number of chars between the end of
+ *                             |                                                  |      the program and the exception
+ *                             |========\ *Node found /=====|====\ SKIP found /===|
+ *      {*Node} node           | Condition/Assignment/Cycle | null                | null
  */
-function parseBestOption(options, messageOnEqual) {
+function parseNextNodeOrSkip(program) {
 
-    if (options.length < 2) throw '[options] have to contain more than one function';
-    let excepted = [];
-    let parsed = null;
-
-    do {
-        parsed = options.pop()();
-        excepted.push(parsed);
-    } while (parsed.exception && (options.length > 0));
-
-    if (parsed.exception) {
-
-        excepted = excepted.sort((a,b) => a.excPosFromEnd - b.excPosFromEnd);
-
-        if (excepted[0].excPosFromEnd === excepted[excepted.length-1].excPosFromEnd) {
-            return {
-                exception: messageOnEqual,
-                excPosFromEnd: excepted[0].excPosFromEnd
-            }
-        } else {
-            return excepted[0];
-        }
-    } else {
-        return parsed
-    }
+    return parseBestOption(
+        [
+            () => parseAsSkip(program),
+            () => parseNextNode(program)
+        ],
+        'Expected Condition/Assignment/Cycle/\'SKIP\''
+    );
 }
 
 
@@ -618,6 +625,7 @@ function parseNextNode(program) {
     }
 }
 
+
 /**
  * Parses a text program into a tree of connected nodes
  *
@@ -647,3 +655,4 @@ export function parse(program) {
         excPosFromEnd: excPosFromEnd
     });
 }
+
