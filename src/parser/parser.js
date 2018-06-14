@@ -257,7 +257,7 @@ function parseAsAssignment(program) {
     res = program.match(regexExpression2);
     if (!res) return {
         exception: 'Expected \':=\'',
-        excPosFromEnd: variable.program.length
+        excPosFromEnd: program.length
     };
     program = res[1];
 
