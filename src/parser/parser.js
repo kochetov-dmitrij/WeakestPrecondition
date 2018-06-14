@@ -1,79 +1,4 @@
-/**
- * A Parsed program in a connected nodes representation
- */
-class Tree {
-    constructor(params) {
-        this.root = params.root;
-        this.exception = params.exception;
-        this.excPosFromEnd = params.excPosFromEnd;
-    }
-}
-
-/**
- * <AssignmentNode> ::=
- *   <assignment> ::= <variable> <bln> : = <bln> <expression>
- */
-class AssignmentNode {
-    constructor(params) {
-        this.varLeft = params.varLeft;
-        this.var1 = params.var1;
-        this.var2 = params.var2;
-        this.sign = params.sign;
-        this.const1 = params.const1;
-        this.const2 = params.const2;
-    }
-
-    setNext(next) {
-        this.next = next;
-        this.exception = next.exception;
-    }
-}
-
-/**
- * <ConditionNode> ::=
- *   ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
- */
-class ConditionNode {
-    constructor(params) {
-        this.compVar1 = params.compVar1;
-        this.compVar2 = params.compVar2;
-        this.compSign = params.compSign;
-        this.compConst1 = params.compConst1;
-        this.compConst2 = params.compConst2;
-        this.trueBranch = params.trueBranch;
-        this.falseBranch = params.falseBranch;
-    }
-
-    setNext(next) {
-        this.next = next;
-        this.exception = next.exception;
-    }
-}
-
-/**
- * <CycleNode> ::=
- *   ( <bln> WHINV <n/s> <spc> <comparison> <spc> <n/s> EOI <n/s> <spc> <comparison> <spc> <n/s> DO <n/s> <program> <n/s> )
- */
-class CycleNode {
-    constructor(params) {
-        this.invConst1 = params.invConst1;
-        this.invVar1 = params.invVar1;
-        this.invSign = params.invSign;
-        this.invConst2 = params.invConst2;
-        this.invVar2 = params.invVar2;
-        this.compConst1 = params.compConst1;
-        this.compVar1 = params.compVar1;
-        this.compSign = params.compSign;
-        this.compConst2 = params.compConst2;
-        this.compVar2= params.compVar2;
-        this.body = params.body;
-    }
-
-    setNext(next) {
-        this.next = next;
-        this.exception = next.exception;
-    }
-}
+import {Tree, AssignmentNode, ConditionNode, CycleNode} from "./tree";
 
 /**
  * <expression_sign> ::= * |
@@ -182,7 +107,6 @@ function parseAsExpression(program) {
 
     let res, var1, const1, sign, var2, const2;
 
-        // remove spaces before expression
     let regexExpression1 = /^\s*([\s\S]*)$/;
     res = program.match(regexExpression1);
     program = res[1];
@@ -222,7 +146,7 @@ function parseAsExpression(program) {
 
 /**
  * <AssignmentNode> ::=
- *   <assignment> ::= <variable> <bln> : = <bln> <expression>
+ *   <variable> <bln> : = <bln> <expression>
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
  * @returns {*}
@@ -700,7 +624,7 @@ function parseNextNode(program) {
  * @param {string} program - Program source to be parsed into tree
  * @returns {Tree}
  */
-function parse(program) {
+export function parse(program) {
     let node = parseNextNode(program);
 
     let root = null,
@@ -723,23 +647,3 @@ function parse(program) {
         excPosFromEnd: excPosFromEnd
     });
 }
-
-// let r = parse(
-// "\
-//              (IF  x < y  THEN   \
-//         (WHINV  _x < u  EOI  x = y  DO \
-//            (IF  x = y  THEN \
-//               z := 0 ; k := m + n  \
-//            ELSE  \
-//               diman := pidr ; \
-//               maxim := shwarz ; \
-//               (IF  max = d  THEN d:= max ELSE cl  := var ) ;\
-//               diman := savel \
-//            ) ; \
-//            savel := krasavcheg       \
-//         )\
-//     ELSE \
-//         y := z  "
-// );
-//
-// let ewq = 456;
