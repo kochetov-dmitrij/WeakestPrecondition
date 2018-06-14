@@ -1,11 +1,18 @@
+/**
+ * A Parsed program in a connected nodes representation
+ */
 class Tree {
-    constructor(root, exception, exceptionPos) {
-        this.root = root;
-        this.exception = exception;
-        this.exceptionPos = exceptionPos;
+    constructor(params) {
+        this.root = params.root;
+        this.exception = params.exception;
+        this.excPosFromEnd = params.excPosFromEnd;
     }
 }
 
+/**
+ * <AssignmentNode> ::=
+ *   <assignment> ::= <variable> <bln> : = <bln> <expression>
+ */
 class AssignmentNode {
     constructor(params) {
         this.varLeft = params.varLeft;
@@ -22,6 +29,10 @@ class AssignmentNode {
     }
 }
 
+/**
+ * <ConditionNode> ::=
+ *   ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
+ */
 class ConditionNode {
     constructor(params) {
         this.compVar1 = params.compVar1;
@@ -39,6 +50,10 @@ class ConditionNode {
     }
 }
 
+/**
+ * <CycleNode> ::=
+ *   ( <bln> WHINV <n/s> <spc> <comparison> <spc> <n/s> EOI <n/s> <spc> <comparison> <spc> <n/s> DO <n/s> <program> <n/s> )
+ */
 class CycleNode {
     constructor(params) {
         this.invConst1 = params.invConst1;
@@ -83,7 +98,7 @@ class CycleNode {
  *      {string} program       | The rest of the program without found token | null
  *      {string} exception     | null                                        | Exception message
  *      {number} excPosFromEnd | null                                        | Number of chars between the end of
- *                             |                                             |   the program and the exception
+ *                             |                                             |      the program and the exception
  */
 function parseAsConstant(program) {
     let regexConst = /^\s*(-?[0-9]+)([^a-z][\s\S]*)$/;
@@ -108,7 +123,7 @@ function parseAsConstant(program) {
  *      {string} program       | The rest of the program without found token | null
  *      {string} exception     | null                                        | Exception message
  *      {number} excPosFromEnd | null                                        | Number of chars between the end of
- *                             |                                             |   the program and the exception
+ *                             |                                             |      the program and the exception
  */
 function parseAsVariable(program) {
     let regexVariable = /^\s*([a-z][a-z0-9]*)([^a-z0-9][\s\S]*)$/;
@@ -135,7 +150,7 @@ function parseAsVariable(program) {
  *      {string} program       | The rest of the program without found token  | null
  *      {string} exception     | null                  | null                 | Exception message
  *      {number} excPosFromEnd | null                  | null                 | Number of chars between the end of
- *                             |                       |                      |   the program and the exception
+ *                             |                       |                      |      the program and the exception
  */
 function parseAsVariableOrConstant(program) {
     return parseBestOption(
@@ -161,13 +176,13 @@ function parseAsVariableOrConstant(program) {
  *      {string} program       | The rest of the program without found token   | null
  *      {string} exception     | null                  | null                  | Exception message
  *      {number} excPosFromEnd | null                  | null                  | Number of chars between the end of
- *                             |                       |                       |   the program and the exception
+ *                             |                       |                       |      the program and the exception
  */
 function parseAsExpression(program) {
 
     let res, var1, const1, sign, var2, const2;
 
-    // remove spaces before expression
+        // remove spaces before expression
     let regexExpression1 = /^\s*([\s\S]*)$/;
     res = program.match(regexExpression1);
     program = res[1];
@@ -206,7 +221,8 @@ function parseAsExpression(program) {
 
 
 /**
- * <assignment> ::= <variable> <bln> : = <bln> <expression>
+ * <AssignmentNode> ::=
+ *   <assignment> ::= <variable> <bln> : = <bln> <expression>
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
  * @returns {*}
@@ -214,12 +230,12 @@ function parseAsExpression(program) {
  *      {string} program            | The rest of the program without found token | null
  *      {string} exception          | null                                        | Exception message
  *      {number} excPosFromEnd      | null                                        | Number of chars between the end of
- *                                                                                |   the program and the exception
- *      {AssignmentNode} node ======|_____________________________________________|_________________
- *           {string} varLeft       | <variable>                                  | null
- *           {string} var1 / const1 | <const_or_var>                              | null
- *           {string} sign          | <expression_sign> / null                    | null
- *           {string} var2 / const2 | <const_or_var> / null                       | null
+ *                                  |                                             |      the program and the exception
+ *      {AssignmentNode} node ======| {*}                                         | null
+ *           {string} varLeft       | <variable>                                  |
+ *           {string} var1 / const1 | <const_or_var>                              |
+ *           {string} sign          | <expression_sign> / null                    |
+ *           {string} var2 / const2 | <const_or_var> / null                       |
  *
  */
 function parseAsAssignment(program) {
@@ -278,7 +294,7 @@ function parseAsAssignment(program) {
  *      {string} program            | The rest of the program without found token | null
  *      {string} exception          | null                                        | Exception message
  *      {number} excPosFromEnd      | null                                        | Number of chars between the end of
- *                                  |                                             |   the program and the exception
+ *                                  |                                             |      the program and the exception
  */
 function parseAsComparison(program) {
 
@@ -325,10 +341,23 @@ function parseAsComparison(program) {
 }
 
 /**
- * ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
+ * <ConditionNode> ::=
+ *   ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
  *
- * @param program
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
  * @returns {*}
+ *      ====================================|==========\ token found /===========|=======\ token not found /===========
+ *      {string} program                    | The rest of the program without    | null
+ *                                          |                     found token    |
+ *      {string} exception                  | null                               | Exception message
+ *      {number} excPosFromEnd              | null                               | Number of chars between the end of
+ *                                          |                                    |      the program and the exception
+ *      {AssignmentNode} node ==============| {*}                                | null
+ *           {string} compConst1 / compVar1 | <const_or_var>                     |
+ *           {string} compSign              | <comparison_sign>                  |
+ *           {string} compConst2 / compVar2 | <const_or_var>                     |
+ *           {*Node} trueBranch             | Condition/Assignment/Cycle/null    |
+ *           {*Node} falseBranch            | Condition/Assignment/Cycle/null    |
  */
 function parseAsCondition(program) {
     let res,
@@ -409,6 +438,19 @@ function parseAsCondition(program) {
 }
 
 
+/**
+ * <*Node> | null
+ *
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
+ * @returns {*}
+ *      =======================|==========\ token found /=========================|=======\ token not found /===========
+ *      {string} program       | The rest of the program without found token      | null
+ *      {string} exception     | null                                             | Exception message
+ *      {number} excPosFromEnd | null                                             | Number of chars between the end of
+ *                             |                                                  |      the program and the exception
+ *                             |========\ *Node found /=====|====\ SKIP found /===|
+ *      {*Node} node           | Condition/Assignment/Cycle | null                | null
+ */
 function parseNextNodeOrSkip(program) {
 
     return parseBestOption(
@@ -422,10 +464,25 @@ function parseNextNodeOrSkip(program) {
 
 
 /**
- * ( <bln> WHINV <n/s> <spc> <comparison> <spc> <n/s> EOI <n/s> <spc> <comparison> <spc> <n/s> DO <n/s> <program> <n/s> )
+ * <CycleNode> ::=
+ *   ( <bln> WHINV <n/s> <spc> <comparison> <spc> <n/s> EOI <n/s> <spc> <comparison> <spc> <n/s> DO <n/s> <program> <n/s> )
  *
- * @param program
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
  * @returns {*}
+ *      ====================================|==========\ token found /===========|=======\ token not found /===========
+ *      {string} program                    | The rest of the program without    | null
+ *                                          |                     found token    |
+ *      {string} exception                  | null                               | Exception message
+ *      {number} excPosFromEnd              | null                               | Number of chars between the end of
+ *                                          |                                    |      the program and the exception
+ *      {AssignmentNode} node ==============| {*}                                | null
+ *           {string} invConst1 / invVar1   | <const_or_var>                     |
+ *           {string} invSign               | <comparison_sign>                  |
+ *           {string} invConst2 / invVar2   | <const_or_var>                     |
+ *           {string} compConst1 / compVar1 | <const_or_var>                     |
+ *           {string} compSign              | <comparison_sign>                  |
+ *           {string} compConst2 / compVar2 | <const_or_var>                     |
+ *           {*Node} body                   | Condition/Assignment/Cycle/null    |
  */
 function parseAsCycle(program) {
     let res,
@@ -470,8 +527,6 @@ function parseAsCycle(program) {
     compConst2 = res.const2;
     compVar2 = res.var2;
     program = res.program;
-
-
 
 
     let regexExpression3 = /^\s{2,}DO\s+([\s\S]*)$/;
@@ -519,7 +574,18 @@ function parseAsCycle(program) {
     };
 }
 
-
+/**
+ * <Skip> ::= SKIP
+ *
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
+ * @returns {*}
+ *      =======================|==============\ token found /================|=========\ token not found /==========
+ *      {string} node          | null                                        | null
+ *      {string} program       | The rest of the program without found token | null
+ *      {string} exception     | null                                        | Exception message
+ *      {number} excPosFromEnd | null                                        | Number of chars between the end of
+ *                             |                                             |      the program and the exception
+ */
 function parseAsSkip(program) {
 
     let regexExpression1 = /^\s*SKIP([\s\S]*)$/;
@@ -536,7 +602,20 @@ function parseAsSkip(program) {
     };
 }
 
-
+/**
+ * Picks first appropriate parse function if any, otherwise return exception of a function that parsed furthest
+ *
+ * @param {[function]} options - array of parse functions
+ * @param messageOnEqual - exception message if all functions parsed the same number of chars before an exception
+ * @returns {*}
+ *      =======================|=====\ token found /=====|===================\ token not found /========================
+ *      {string} node          | null                    | null
+ *      {string} program       | The rest of the program | null
+ *                             |     without found token |
+ *                             |                         |===\ excPosFromEnd equal /==|==\ excPosFromEnd not equal /====
+ *      {number} excPosFromEnd | null                    | excPosFromEnd from options | min excPosFromEnd from options
+ *      {string} exception     | null                    | messageOnEqual             | exception with min excPosFromEnd
+ */
 function parseBestOption(options, messageOnEqual) {
 
     if (options.length < 2) throw '[options] have to contain more than one function';
@@ -567,8 +646,21 @@ function parseBestOption(options, messageOnEqual) {
 
 
 /**
- * An argument is a remainder of the program,
- * returns nextNode and remainder of the program without an operator in the nextNode
+ * <*Node> ::= <ConditionNode> |
+ *             <AssignmentNode> |
+ *             <CycleNode>
+ *
+ * After successfully found node if there is ' ; ' calls parseNextNode(remaining program) recursively and
+ *                                                                           puts the result to node.next
+ *
+ * @param {string} program - Program source. Token is going to be found at the beginning of the program
+ * @returns {*}
+ *      =======================|==========\ token found /====================|=======\ token not found /===========
+ *      {string} program       | The rest of the program without found token | null
+ *      {*Node} node           | <*Node>                                     | null
+ *      {string} exception     | null                                        | Exception message
+ *      {number} excPosFromEnd | null                                        | Number of chars between the end of
+ *                             |                                             |      the program and the exception
  */
 function parseNextNode(program) {
 
@@ -603,46 +695,51 @@ function parseNextNode(program) {
 }
 
 /**
- * parse all program
- * returns a tree of Nodes
+ * Parses a text program into a tree of connected nodes
+ *
+ * @param {string} program - Program source to be parsed into tree
+ * @returns {Tree}
  */
 function parse(program) {
     let node = parseNextNode(program);
 
     let root = null,
         exception = null,
-        exceptionPos = null;
+        excPosFromEnd = null;
 
-    if (node.node) {
+    if (!node.exception) {
         root = node.node;
         if (node.program.replace(/\s*/, '') !== '' ) {
             exception = 'Unexpected symbol after the end of the program';
-            exceptionPos = program.length - node.program.length;
+            excPosFromEnd = program.length - node.excPosFromEnd;
         }
     } else {
         exception = node.exception;
     }
 
-    return new Tree(root, exception, exceptionPos);
+    return new Tree({
+        root: root,
+        exception: exception,
+        excPosFromEnd: excPosFromEnd
+    });
 }
 
-let r = parse(
-"\
-             (IF  x < y  THEN   \
-        (WHINV  _x < u  EOI  x = y  DO \
-           (IF  x = y  THEN \
-              z := 0 ; k := m + n  \
-           ELSE  \
-              diman := pidr ; \
-              maxim := shwarz ; \
-              (IF  max = d  THEN d:= max ELSE cl  := var ) ;\
-              diman := savel \
-           ) ; \
-           savel := krasavcheg       \
-        )\
-    ELSE \
-        y := z \
-    )  "
-);
-
-let ewq = 456;
+// let r = parse(
+// "\
+//              (IF  x < y  THEN   \
+//         (WHINV  _x < u  EOI  x = y  DO \
+//            (IF  x = y  THEN \
+//               z := 0 ; k := m + n  \
+//            ELSE  \
+//               diman := pidr ; \
+//               maxim := shwarz ; \
+//               (IF  max = d  THEN d:= max ELSE cl  := var ) ;\
+//               diman := savel \
+//            ) ; \
+//            savel := krasavcheg       \
+//         )\
+//     ELSE \
+//         y := z  "
+// );
+//
+// let ewq = 456;
