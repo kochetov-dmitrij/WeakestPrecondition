@@ -1,4 +1,4 @@
-.wp, .extract, .wp_wrapper, .programBlock, .eq {
+.wp, .solid_program, .wp_wrapper, .programBlock, .eq {
     display: inline-block;
     vertical-align: middle;
     line-height: normal;
@@ -19,7 +19,7 @@
     margin-left: 1em;
 }
 
-.extract {
+.solid_program {
     border: 1px solid black;
     margin-left: 1em;
 }

@@ -60,7 +60,7 @@ export class ProgramBlock extends React.Component{
                         <div className="wp_wrapper">
                             wp{node.index}(
                         </div>
-                        <div className='extract'>
+                        <div className='solid_program'>
                             {this.printNode(node, extract)}
                         </div>
                         <div className="wp_wrapper">
