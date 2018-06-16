@@ -23,6 +23,7 @@ export class AssignmentNode {
         this.const1 = params.const1;
         this.const2 = params.const2;
         this.index = params.index;
+        this.parentIndex = params.parentIndex;
     }
 
     setNext(next) {
@@ -45,6 +46,7 @@ export class ConditionNode {
         this.trueBranch = params.trueBranch;
         this.falseBranch = params.falseBranch;
         this.index = params.index;
+        this.parentIndex = params.parentIndex;
     }
 
     setNext(next) {
@@ -71,6 +73,7 @@ export class CycleNode {
         this.compVar2= params.compVar2;
         this.body = params.body;
         this.index = params.index;
+        this.parentIndex = params.parentIndex;
     }
 
     setNext(next) {

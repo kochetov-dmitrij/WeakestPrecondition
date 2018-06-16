@@ -270,7 +270,7 @@ function parseAsExpression(program) {
  *           {string} var2 / const2 | <const_or_var> / null                       |
  *
  */
-function parseAsAssignment(program, nodeIndex) {
+function parseAsAssignment(program, nodeIndex, parentIndex) {
 
     let res, varLeft;
 
@@ -307,7 +307,8 @@ function parseAsAssignment(program, nodeIndex) {
         sign: res.sign,
         const2: res.const2,
         var2: res.var2,
-        index: index
+        index: index,
+        parentIndex: parentIndex,
     });
 
     return {
@@ -338,7 +339,7 @@ function parseAsAssignment(program, nodeIndex) {
  *           {*Node} trueBranch             | Condition/Assignment/Cycle/null    |
  *           {*Node} falseBranch            | Condition/Assignment/Cycle/null    |
  */
-function parseAsCondition(program, nodeIndex) {
+function parseAsCondition(program, nodeIndex, parentIndex) {
     let res,
         compConst1, compVar1, compSign, compConst2, compVar2,
         trueBranch, falseBranch;
@@ -372,7 +373,7 @@ function parseAsCondition(program, nodeIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex);
+    res = parseNextNodeOrSkip(program, nodeIndex, index);
     if (res.exception) return res;
     trueBranch = res.node;
     program = res.program;
@@ -387,7 +388,7 @@ function parseAsCondition(program, nodeIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex);
+    res = parseNextNodeOrSkip(program, nodeIndex, index);
     if (res.exception) return res;
     falseBranch = res.node;
     program = res.program;
@@ -410,7 +411,8 @@ function parseAsCondition(program, nodeIndex) {
         compVar2: compVar2,
         trueBranch: trueBranch,
         falseBranch: falseBranch,
-        index: index
+        index: index,
+        parentIndex: parentIndex,
     });
 
     return {
@@ -443,7 +445,7 @@ function parseAsCondition(program, nodeIndex) {
  *           {string} compConst2 / compVar2 | <const_or_var>                     |
  *           {*Node} body                   | Condition/Assignment/Cycle/null    |
  */
-function parseAsCycle(program, nodeIndex) {
+function parseAsCycle(program, nodeIndex, parentIndex) {
     let res,
         invConst1, invVar1, invSign, invConst2, invVar2,
         compConst1, compVar1, compSign, compConst2, compVar2,
@@ -498,7 +500,7 @@ function parseAsCycle(program, nodeIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex);
+    res = parseNextNodeOrSkip(program, nodeIndex, index);
     if (res.exception) return res;
     body = res.node;
     program = res.program;
@@ -526,7 +528,8 @@ function parseAsCycle(program, nodeIndex) {
         compConst2: compConst2,
         compVar2: compVar2,
         body: body,
-        index: index
+        index: index,
+        parentIndex: parentIndex,
     });
 
     return {
@@ -580,12 +583,12 @@ function parseAsSkip(program) {
  *                             |========\ *Node found /=====|====\ SKIP found /===|
  *      {*Node} node           | Condition/Assignment/Cycle | null                | null
  */
-function parseNextNodeOrSkip(program, nodeIndex) {
+function parseNextNodeOrSkip(program, nodeIndex, parentIndex) {
 
     return parseBestOption(
         [
             () => parseAsSkip(program),
-            () => parseNextNode(program, nodeIndex)
+            () => parseNextNode(program, nodeIndex, parentIndex)
         ],
         'Expected Condition/Assignment/Cycle/\'SKIP\''
     );
@@ -611,15 +614,15 @@ function parseNextNodeOrSkip(program, nodeIndex) {
  *      {number} excPosFromEnd | null                                        | Number of chars between the end of
  *                             |                                             |      the program and the exception
  */
-function parseNextNode(program, nodeIndex) {
+function parseNextNode(program, nodeIndex, parentIndex) {
 
     nodeIndex.index++;
 
     let parsed = parseBestOption(
         [
-            () => parseAsCondition(program, nodeIndex),
-            () => parseAsAssignment(program, nodeIndex),
-            () => parseAsCycle(program, nodeIndex)
+            () => parseAsCondition(program, nodeIndex, parentIndex),
+            () => parseAsAssignment(program, nodeIndex, parentIndex),
+            () => parseAsCycle(program, nodeIndex, parentIndex)
         ],
         'Expected Condition/Assignment/Cycle'
     );
@@ -634,7 +637,7 @@ function parseNextNode(program, nodeIndex) {
 
     if (res) {
         program = res[1];
-        let parsedNode = parseNextNode(program, nodeIndex);
+        let parsedNode = parseNextNode(program, nodeIndex, node.index);
         if (parsedNode.exception) return parsedNode;
         node.setNext(parsedNode.node);
         program = parsedNode.program;
@@ -663,7 +666,7 @@ export function parse(program) {
 
     let nodeIndex = {index: 0};
 
-    let node = parseNextNode(program, nodeIndex);
+    let node = parseNextNode(program, nodeIndex, null);
 
     let root = node.node,
         exception = node.exception,

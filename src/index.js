@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import './style.css';
 import {parse} from './parser/parser'
-import {ProgramBlock, Transition} from './render_tree'
+import {ProgramBlock, Transition, Scroll} from './render_tree'
 
-ReactDOM.render(<Transition
-    node={qq().root}
-    extract={true}
+ReactDOM.render(<Scroll
+    root={qq().root}
 />, document.getElementById('root'));
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.css';
+import style from './style.css';
 import {} from './parser/parser'
 import {AssignmentNode, ConditionNode, CycleNode} from "./parser/tree";
 
@@ -8,16 +8,22 @@ export class Scroll extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            transitions: [/*root*/]
+            transitions: [this.props.root]
         }
+    }
+
+    handleClick(node) {
+        this.setState({
+            transitions: this.state.transitions.concat([node])
+        });
     }
 
     render() {
 
-        const listItems = this.state.transitions.map((/*parameters*/) =>
-            <li>
-                <Transition  />
-            </li>
+        const listItems = this.state.transitions.map((node) =>
+            <div key={JSON.stringify(node)}>
+                <Transition node={node} onClick={(nextNode) => this.handleClick(nextNode)}/>
+            </div>
         );
 
         return (
@@ -31,13 +37,14 @@ export class Scroll extends React.Component{
 
 export class Transition extends React.Component{
 
-
     render() {
         return (
-            <div className='transition'>
-                <ProgramBlock node={this.props.node} extract={false}/>
-                <div className='eq'> = </div>
-                <ProgramBlock node={this.props.node} extract={true}/>
+            <div className='transition_container'>
+                <div className='transition'>
+                    <ProgramBlock node={this.props.node} onClick={() => {}} extract={false}/>
+                    <div className='eq'> = </div>
+                    <ProgramBlock node={this.props.node} onClick={(nextNode) => this.props.onClick(nextNode)} extract={true}/>
+                </div>
             </div>
         )
     }
@@ -48,15 +55,20 @@ export class Transition extends React.Component{
 export class ProgramBlock extends React.Component{
 
     printWP(node, extract) {
+        const colors = getColor(node.index);
+        const color = {
+            backgroundColor: 'rgb(' + colors[0] + ',' + colors[1] + ',' + colors[2] + ')',
+        };
         return (
             extract ?
-                <div>
-                    wp{node.index}({this.printNode(node, extract)}
-                      {node.next ? this.printWP(node.next, false) : ''}
+                <div className="wp_wrapper">
+                    wp{node.index}(
+                    {this.printNode(node, extract)}
+                    {node.next ? this.printWP(node.next, false) : ''}
                     )
                 </div> :
                 <div>
-                    <div className="wp">
+                    <button style={color} className='button_next_wp' onClick={() => this.props.onClick(node)}>
                         <div className="wp_wrapper">
                             wp{node.index}(
                         </div>
@@ -66,7 +78,7 @@ export class ProgramBlock extends React.Component{
                         <div className="wp_wrapper">
                             | ф)
                         </div>
-                    </div>
+                    </button>
                 </div>
         )
     }
@@ -168,4 +180,10 @@ export class ProgramBlock extends React.Component{
             </div>
         )
     }
+}
+
+function getColor(number) {
+    let left = 195;
+    let right = 255;
+    return [((number*30) % (right - left) + left).toString(), ((number*30 + 20) % (right - left) + left).toString(), ((number*30 + 40) % (right - left) + left).toString()];
 }
