@@ -669,6 +669,7 @@ export function parse(program) {
         exception = node.exception,
         excPosFromEnd = node.excPosFromEnd;
     program = node.program;
+    let numberOfNodes = nodeIndex.index;
 
     if (!exception) {
 
@@ -678,12 +679,14 @@ export function parse(program) {
         if (res[1].length !== 0) {
             exception = 'Unexpected symbol after the end of the program';
             excPosFromEnd = res[1].length;
+            root = null;
+            numberOfNodes = null;
         }
     }
 
     return new Tree({
         root: root,
-        numberOfNodes: nodeIndex.index,
+        numberOfNodes: numberOfNodes,
         exception: exception,
         excPosFromEnd: excPosFromEnd
     });
