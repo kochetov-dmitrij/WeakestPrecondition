@@ -677,8 +677,8 @@ function setIndexesAndParents(tree) {
  */
 export function parse(program) {
 
+    let programLength = program.length;
     let node = parseNextNode(program);
-
     program = node.program;
 
     let root = node.node,
@@ -701,7 +701,7 @@ export function parse(program) {
     let tree = new Tree({
         root: root,
         exception: exception,
-        excPosFromEnd: excPosFromEnd
+        exceptionPosition: programLength - excPosFromEnd,
     });
 
     if (!exception) {

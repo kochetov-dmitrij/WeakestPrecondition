@@ -7,26 +7,41 @@ import {ProgramBlock, Transition, Scroll} from './render_tree'
 class MainComponent extends React.Component {
     constructor() {
         super();
-        this.state = {tree: null, program: null};
+        this.state = {
+            tree: null,
+            program:  'Enter your code here'
+        };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    handleSubmit(event, val) {
-        let tree = qq(val);
+    handleSubmit(event) {
+        let tree = parse(this.state.program);
         this.setState({
             tree: tree,
-            program: val,
+            submittedProgram: this.state.program
         });
         event.preventDefault();
+    }
+
+    handleChange(e) {
+        this.setState({
+            program: e.target.value,
+        });
     }
 
     render() {
         if (this.state.tree) {
             if (this.state.tree.exception) {
                 return (
-                    <div>
-                        <h2>{this.state.tree.exception}: {getSnippet(this.state.program, this.state.tree.excPosFromEnd)}</h2>
-                        <CodeForm defaultText={this.state.program} onSubmit={(e, val) => this.handleSubmit(e, val)} />
+                    <div className='parser'>
+                        <CodeForm codeText={this.state.program} onChange={(e) => this.handleChange(e)} onSubmit={(e) => this.handleSubmit(e)} />
+                        <div className='exception_block'>
+                            <div className='exception_message'>
+                                {this.state.tree.exception + ':'}
+                            </div>
+                            {getSnippet(this.state.submittedProgram, this.state.tree.exceptionPosition)}
+                        </div>
                     </div>
                 );
             }
@@ -36,33 +51,18 @@ class MainComponent extends React.Component {
             }
         }
         else {
-            return <CodeForm defaultText={this.state.program} onSubmit={(e, val) => this.handleSubmit(e, val)}/>;
+            return <CodeForm codeText={this.state.program} onChange={(e) => this.handleChange(e)} onSubmit={(e) => this.handleSubmit(e)}/>;
         }
     }
 }
 
 class CodeForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {value: props.program ? props.program : 'Enter your code here'};
-
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleChange(event) {
-        this.setState({value: event.target.value});
-    }
-
-    // handleSubmit(event) {
-    //     tree = qq(this.state.value);
-    //     event.preventDefault();
-    // }
 
     render() {
         return (
-            <form onSubmit={(e) => this.props.onSubmit(e, this.state.value)}>
-                <textarea name="code" value={this.state.value} onChange={(e) => this.handleChange(e)} />
-                <input type="submit" value="Run" />
+            <form className="submit_form" onSubmit={(e) => this.props.onSubmit(e)}>
+                <textarea className='submit_area' name="code" value={this.props.codeText} onChange={(e) => this.props.onChange(e)} />
+                <input className='submit_button' type="submit" value="Run" />
             </form>
         );
     }
@@ -70,17 +70,12 @@ class CodeForm extends React.Component {
 
 ReactDOM.render( <MainComponent />, document.getElementById('root'));
 
-// ReactDOM.render(<Scroll
-//     root={qq().root}
-// />, document.getElementById('root'));
-
 function getSnippet(program, ind) {
-    ind = program.length - ind;
-    let left = Math.max(0, ind - 10);
-    let right = Math.min(ind + 10, program.length);
-    return <pre className="code">{program.slice(left, ind)}<code className="error_letter">{program[ind]}</code>{program.slice(ind + 1, right)}</pre>;
-}
 
-function qq(textCode){
-    return parse(textCode);
+    while (ind < program.length && (program[ind] === '\n' || program[ind] === ' ')) ind++;
+    let letter = (!program[ind] || program[ind] === '\n') ? " " : program[ind];
+    let leftPart = program.slice(0, ind).match(/[\r\n]?([^\r\n]*[\r\n]?[^\r\n]*)$/)[1];
+    let rightPart = program.slice(ind + 1, program.length).match(/^([^\r\n]*[\r\n]?[^\r\n]*)[\r\n]?/)[1];
+
+    return <pre className="code">{leftPart}<code className="error_letter">{letter}</code>{rightPart}</pre>;
 }

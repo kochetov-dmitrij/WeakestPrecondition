@@ -54,4 +54,40 @@
 
 .code {
     border: 1px solid red;
+    display: block;
+    padding: 0.2em;
+}
+
+.submit_form {
+    display: inline-block;
+    float: left;
+    margin: 10px;
+}
+
+.submit_area {
+    display: block;
+    min-width: 40em;
+    min-height: 30em;
+}
+
+.submit_button {
+    margin-top: 4px;
+    display: block;
+    width: 100%;
+}
+
+.parser {
+    display: inline-block;
+}
+
+.exception_block {
+    display: inline-block;
+    float: left;
+    margin: 10px;
+}
+
+.exception_message {
+
+    display: block;
+    margin-bottom: 10px;
 }

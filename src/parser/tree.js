@@ -5,7 +5,7 @@ export class Tree {
     constructor(params) {
         this.root = params.root;
         this.exception = params.exception;
-        this.excPosFromEnd = params.excPosFromEnd;
+        this.exceptionPosition = params.exceptionPosition;
     }
 
     setNumberOfNodes(numberOfNodes) {
