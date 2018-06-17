@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './style.css';
 import {parse} from './parser/parser'
-import {ProgramBlock, Transition, Scroll} from './render_tree'
+import {Scroll} from './render_tree'
 
 class MainComponent extends React.Component {
     constructor() {
         super();
         this.state = {
             tree: null,
-            program:  'Enter your code here'
+            program: ''
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -38,7 +38,7 @@ class MainComponent extends React.Component {
                         <CodeForm codeText={this.state.program} onChange={(e) => this.handleChange(e)} onSubmit={(e) => this.handleSubmit(e)} />
                         <div className='exception_block'>
                             <div className='exception_message'>
-                                {this.state.tree.exception + ':'}
+                                {this.state.tree.exception}
                             </div>
                             {getSnippet(this.state.submittedProgram, this.state.tree.exceptionPosition)}
                         </div>
@@ -61,8 +61,19 @@ class CodeForm extends React.Component {
     render() {
         return (
             <form className="submit_form" onSubmit={(e) => this.props.onSubmit(e)}>
-                <textarea className='submit_area' name="code" value={this.props.codeText} onChange={(e) => this.props.onChange(e)} />
-                <input className='submit_button' type="submit" value="Run" />
+                <textarea
+                    className='submit_area'
+                    spellCheck="false"
+                    placeholder='Enter your code here'
+                    name="code"
+                    value={this.props.codeText}
+                    onChange={(e) => this.props.onChange(e)}
+                />
+                <input
+                    className='submit_button'
+                    type="submit"
+                    value="Visualise calculating of the weakest precondition"
+                />
             </form>
         );
     }

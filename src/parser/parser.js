@@ -73,11 +73,11 @@ function parseBestOption(options, messageOnEqual) {
  *                             |                                             |      the program and the exception
  */
 function parseAsConstant(program) {
-    let regexConst = /^\s*(-?[0-9]+)([^a-z][\s\S]*)$/;
+    let regexConst = /^\s*(-?[0-9]+)((?:[^a-z][\s\S]*)|)$/;
     let res = program.match(regexConst);
     return res ? {
         constant: res[1],
-        program: res[2]
+        program: res[2] ? res[2] : ''
     } : {
         exception: 'Expected a constant',
         excPosFromEnd: program.length
@@ -98,7 +98,7 @@ function parseAsConstant(program) {
  *                             |                                             |      the program and the exception
  */
 function parseAsVariable(program) {
-    let regexVariable = /^\s*([a-z][a-z0-9]*)([^a-z0-9][\s\S]*)$/;
+    let regexVariable = /^\s*([a-z][a-z0-9]*)([\s\S]*)$/;
     let res = program.match(regexVariable);
     return res ? {
         variable: res[1],

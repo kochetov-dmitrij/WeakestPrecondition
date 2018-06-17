@@ -1,13 +1,37 @@
-.button_next_wp, .solid_program, .wp_wrapper, .programBlock, .eq {
+.button_next_wp, .solid_program, .wp_wrapper, .program_block, .eq {
     display: inline-block;
     vertical-align: middle;
     line-height: normal;
     text-align: left;
 }
 
+.button_next_wp, .button_next_wp {
+    outline: none;
+    margin: 5px 0;
+}
+
+.button_next_wp:hover, .button_next_wp:active {
+    cursor: pointer;
+}
+
+.solid_program {
+    background-color: #2B2B2B;
+}
+
+.wp_wrapper, .solid_program {
+    line-height: 1.4;
+    color: white;
+    font-family: monospace;
+}
+
+body {
+    background-color: #4a6572;
+    color: aliceblue;
+}
+
 .eq {
-    margin: 0 3em 0;
-    font-size: 20pt;
+    margin: 0 1em 0;
+    font-size: 40pt;
     font-weight: bold;
 }
 
@@ -17,7 +41,7 @@
 
 .transition_container {
     padding: 10px 0 10px;
-    border-bottom: 5px solid #000000;
+    border-bottom: 5px solid #344955;
     text-align: center;
 }
 
@@ -27,7 +51,6 @@
 }
 
 .solid_program {
-    border: 1px solid black;
     padding: 0.5em 1em 0.5em 0;
     margin-left: 1em;
     text-align: left;
@@ -37,10 +60,10 @@
     margin-left: 1em;
 }
 
-.programBlock {
+.program_block {
     display: inline-block;
-    border: 1px dotted black;
     padding: 0.5em 2em 0.5em 1em;
+    background-color: #2B2B2B;
 }
 
 .button_next_wp {
@@ -49,13 +72,18 @@
 }
 
 .error_letter {
-    background-color: red;
+    background-color: #ec534c;
+    color: white;
+    padding: 0 ;
 }
 
 .code {
-    border: 1px solid red;
     display: block;
-    padding: 0.2em;
+    background-color: #2b2b2b;
+    margin: 0;
+    padding: 8px;
+    line-height: 1.4;
+    font-family: monospace
 }
 
 .submit_form {
@@ -68,12 +96,30 @@
     display: block;
     min-width: 40em;
     min-height: 30em;
+    background-color: #2b2b2b;
+    border: none;
+    color: aliceblue;
+    outline: none;
+    padding: 8px;
+    line-height: 1.4;
+    font-family: monospace
 }
 
 .submit_button {
     margin-top: 4px;
     display: block;
     width: 100%;
+    background-color: #344955;
+    border: none;
+    color: #a7afb6;
+    padding: 8px;
+    outline: none;
+
+}
+
+.submit_button:hover, .submit_button:active {
+    background-color: #2e4652;
+    cursor: pointer;
 }
 
 .parser {
@@ -84,10 +130,14 @@
     display: inline-block;
     float: left;
     margin: 10px;
+    padding: 8px;
+    border-left: 5px solid #d99e5f;
 }
 
 .exception_message {
-
+    color: #d99e5f;
+    font-weight: bold;
     display: block;
     margin-bottom: 10px;
+    font-family: Arial, Helvetica, sans-serif;
 }

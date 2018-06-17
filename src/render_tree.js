@@ -1,6 +1,4 @@
 import React from 'react';
-import style from './style.css';
-import {} from './parser/parser'
 import {AssignmentNode, ConditionNode, CycleNode} from "./parser/tree";
 
 
@@ -47,7 +45,7 @@ export class Transition extends React.Component{
         return (
             <div className='transition_container'>
                 <div className='transition'>
-                    <ProgramBlock node={this.props.node} onClick={() => {}} extract={false}/>
+                    <ProgramBlock node={this.props.node} onClick={(nextNode) => this.props.onClick(nextNode)} extract={false}/>
                     <div className='eq'> = </div>
                     <ProgramBlock node={this.props.node} onClick={(nextNode) => this.props.onClick(nextNode)} extract={true}/>
                 </div>
@@ -92,7 +90,6 @@ export class ProgramBlock extends React.Component{
     printNode(node, extract) {
         
         let block = [node];
-        // let next;
         if (!extract) {
             while (block[block.length - 1].next)
                 block.push(block[block.length - 1].next);
@@ -128,7 +125,7 @@ export class ProgramBlock extends React.Component{
                               {this.printWP(node.body, false)}
                               ) <br/>
                              &&<br/>
-                              ( ! ( {comp1} {compSign} {comp2} ) & ( {inv1} {invSign} {inv2} ) -> ф )
+                              ( !( {comp1} {compSign} {comp2} ) & ( {inv1} {invSign} {inv2} ) -> ф )
                             )
                         </div>
                         :
@@ -181,7 +178,7 @@ export class ProgramBlock extends React.Component{
 
     render() {
         return (
-            <div className="programBlock">
+            <div className="program_block">
                 {this.printWP(this.props.node, this.props.extract)}
             </div>
         )
@@ -190,29 +187,18 @@ export class ProgramBlock extends React.Component{
 
 function getColor(number) {
     switch (number % 12) {
-        case 0:
-            return '#B4B4FF';
-        case 1:
-            return '#B4FFB4';
-        case 2:
-            return '#FFB4B4';
-        case 3:
-            return '#B4FFFF';
-        case 4:
-            return '#FFB4FF';
-        case 5:
-            return '#FFFFB4';
-        case 6:
-            return '#7070FF';
-        case 7:
-            return '#70FF70';
-        case 8:
-            return '#FF7070';
-        case 9:
-            return '#70FFFF';
-        case 10:
-            return '#FF70FF';
-        case 11:
-            return '#FFFF70';
+        case 0: return '#505090';
+        case 1: return '#509050';
+        case 2: return '#905050';
+        case 3: return '#509090';
+        case 4: return '#905090';
+        case 5: return '#909050';
+        case 6: return '#303070';
+        case 7: return '#307030';
+        case 8: return '#703030';
+        case 9: return '#307070';
+        case 10: return '#703070';
+        case 11: return '#707030';
+        default: return
     }
 }
