@@ -61,10 +61,10 @@ export class Transition extends React.Component{
 export class ProgramBlock extends React.Component{
 
     printWP(node, extract) {
-        const colors = getColor(node.index);
         const color = {
-            backgroundColor: 'rgb(' + colors[0] + ',' + colors[1] + ',' + colors[2] + ')',
+            backgroundColor: getColor(node.index),
         };
+
         return (
             extract ?
                 <div className="wp_wrapper">
@@ -189,7 +189,30 @@ export class ProgramBlock extends React.Component{
 }
 
 function getColor(number) {
-    let left = 195;
-    let right = 255;
-    return [((number*30) % (right - left) + left).toString(), ((number*30 + 20) % (right - left) + left).toString(), ((number*30 + 40) % (right - left) + left).toString()];
+    switch (number % 12) {
+        case 0:
+            return '#B4B4FF';
+        case 1:
+            return '#B4FFB4';
+        case 2:
+            return '#FFB4B4';
+        case 3:
+            return '#B4FFFF';
+        case 4:
+            return '#FFB4FF';
+        case 5:
+            return '#FFFFB4';
+        case 6:
+            return '#7070FF';
+        case 7:
+            return '#70FF70';
+        case 8:
+            return '#FF7070';
+        case 9:
+            return '#70FFFF';
+        case 10:
+            return '#FF70FF';
+        case 11:
+            return '#FFFF70';
+    }
 }
