@@ -4,9 +4,12 @@
 export class Tree {
     constructor(params) {
         this.root = params.root;
-        this.numberOfNodes = params.numberOfNodes;
         this.exception = params.exception;
         this.excPosFromEnd = params.excPosFromEnd;
+    }
+
+    setNumberOfNodes(numberOfNodes) {
+        this.numberOfNodes = numberOfNodes;
     }
 }
 
@@ -22,13 +25,17 @@ export class AssignmentNode {
         this.sign = params.sign;
         this.const1 = params.const1;
         this.const2 = params.const2;
-        this.index = params.index;
         this.parentIndex = params.parentIndex;
     }
 
     setNext(next) {
         this.next = next;
         this.exception = next.exception;
+    }
+
+    setIndex(index, parentIndex) {
+        this.index = index;
+        this.parentIndex = parentIndex;
     }
 }
 
@@ -45,13 +52,17 @@ export class ConditionNode {
         this.compConst2 = params.compConst2;
         this.trueBranch = params.trueBranch;
         this.falseBranch = params.falseBranch;
-        this.index = params.index;
         this.parentIndex = params.parentIndex;
     }
 
     setNext(next) {
         this.next = next;
         this.exception = next.exception;
+    }
+
+    setIndex(index, parentIndex) {
+        this.index = index;
+        this.parentIndex = parentIndex;
     }
 }
 
@@ -79,5 +90,10 @@ export class CycleNode {
     setNext(next) {
         this.next = next;
         this.exception = next.exception;
+    }
+
+    setIndex(index, parentIndex) {
+        this.index = index;
+        this.parentIndex = parentIndex;
     }
 }

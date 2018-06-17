@@ -255,8 +255,6 @@ function parseAsExpression(program) {
  *   <variable> <bln> : = <bln> <expression>
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @param {*} nodeIndex
- *      {number} index - Index of the node according to depth-first search
  * @returns {*}
  *      ============================|===============\ token found /===============|=======\ token not found /===========
  *      {string} program            | The rest of the program without found token | null
@@ -270,11 +268,9 @@ function parseAsExpression(program) {
  *           {string} var2 / const2 | <const_or_var> / null                       |
  *
  */
-function parseAsAssignment(program, nodeIndex, parentIndex) {
+function parseAsAssignment(program) {
 
     let res, varLeft;
-
-    let index = nodeIndex.index;
 
     let regexExpression1 = /^\s*([\s\S]*)$/;
     res = program.match(regexExpression1);
@@ -307,8 +303,6 @@ function parseAsAssignment(program, nodeIndex, parentIndex) {
         sign: res.sign,
         const2: res.const2,
         var2: res.var2,
-        index: index,
-        parentIndex: parentIndex,
     });
 
     return {
@@ -323,8 +317,6 @@ function parseAsAssignment(program, nodeIndex, parentIndex) {
  *   ( <bln> IF <n/s> <spc> <comparison> <spc> <n/s> THEN <n/s> <program> <n/s> ELSE <n/s> <program> <n/s> )
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @param {*} nodeIndex
- *      {number} index - Index of the node according to depth-first search
  * @returns {*}
  *      ====================================|==========\ token found /===========|=======\ token not found /===========
  *      {string} program                    | The rest of the program without    | null
@@ -339,12 +331,10 @@ function parseAsAssignment(program, nodeIndex, parentIndex) {
  *           {*Node} trueBranch             | Condition/Assignment/Cycle/null    |
  *           {*Node} falseBranch            | Condition/Assignment/Cycle/null    |
  */
-function parseAsCondition(program, nodeIndex, parentIndex) {
+function parseAsCondition(program) {
     let res,
         compConst1, compVar1, compSign, compConst2, compVar2,
         trueBranch, falseBranch;
-
-    let index = nodeIndex.index;
 
     let regexExpression1 = /^\s*\(\s*IF\s{2,}([\s\S]*)$/;
     res = program.match(regexExpression1);
@@ -373,7 +363,7 @@ function parseAsCondition(program, nodeIndex, parentIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex, index);
+    res = parseNextNodeOrSkip(program);
     if (res.exception) return res;
     trueBranch = res.node;
     program = res.program;
@@ -388,7 +378,7 @@ function parseAsCondition(program, nodeIndex, parentIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex, index);
+    res = parseNextNodeOrSkip(program);
     if (res.exception) return res;
     falseBranch = res.node;
     program = res.program;
@@ -411,8 +401,6 @@ function parseAsCondition(program, nodeIndex, parentIndex) {
         compVar2: compVar2,
         trueBranch: trueBranch,
         falseBranch: falseBranch,
-        index: index,
-        parentIndex: parentIndex,
     });
 
     return {
@@ -427,8 +415,6 @@ function parseAsCondition(program, nodeIndex, parentIndex) {
  *   ( <bln> WHINV <n/s> <spc> <comparison> <spc> <n/s> EOI <n/s> <spc> <comparison> <spc> <n/s> DO <n/s> <program> <n/s> )
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @param {*} nodeIndex
- *      {number} index - Index of the node according to depth-first search
  * @returns {*}
  *      ====================================|==========\ token found /===========|=======\ token not found /===========
  *      {string} program                    | The rest of the program without    | null
@@ -445,13 +431,11 @@ function parseAsCondition(program, nodeIndex, parentIndex) {
  *           {string} compConst2 / compVar2 | <const_or_var>                     |
  *           {*Node} body                   | Condition/Assignment/Cycle/null    |
  */
-function parseAsCycle(program, nodeIndex, parentIndex) {
+function parseAsCycle(program) {
     let res,
         invConst1, invVar1, invSign, invConst2, invVar2,
         compConst1, compVar1, compSign, compConst2, compVar2,
         body;
-
-    let index = nodeIndex.index;
 
     let regexExpression1 = /^\s*\(\s*WHINV\s{2,}([\s\S]*)$/;
     res = program.match(regexExpression1);
@@ -500,7 +484,7 @@ function parseAsCycle(program, nodeIndex, parentIndex) {
     program = res[1];
 
 
-    res = parseNextNodeOrSkip(program, nodeIndex, index);
+    res = parseNextNodeOrSkip(program);
     if (res.exception) return res;
     body = res.node;
     program = res.program;
@@ -528,8 +512,6 @@ function parseAsCycle(program, nodeIndex, parentIndex) {
         compConst2: compConst2,
         compVar2: compVar2,
         body: body,
-        index: index,
-        parentIndex: parentIndex,
     });
 
     return {
@@ -572,8 +554,6 @@ function parseAsSkip(program) {
  * <*Node> | null
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @param {*} nodeIndex
- *      {number} index - Index of the node according to depth-first search
  * @returns {*}
  *      =======================|==========\ token found /=========================|=======\ token not found /===========
  *      {string} program       | The rest of the program without found token      | null
@@ -583,12 +563,12 @@ function parseAsSkip(program) {
  *                             |========\ *Node found /=====|====\ SKIP found /===|
  *      {*Node} node           | Condition/Assignment/Cycle | null                | null
  */
-function parseNextNodeOrSkip(program, nodeIndex, parentIndex) {
+function parseNextNodeOrSkip(program) {
 
     return parseBestOption(
         [
             () => parseAsSkip(program),
-            () => parseNextNode(program, nodeIndex, parentIndex)
+            () => parseNextNode(program)
         ],
         'Expected Condition/Assignment/Cycle/\'SKIP\''
     );
@@ -604,8 +584,6 @@ function parseNextNodeOrSkip(program, nodeIndex, parentIndex) {
  *                                                                           puts the result to node.next
  *
  * @param {string} program - Program source. Token is going to be found at the beginning of the program
- * @param {*} nodeIndex
- *      {number} index - Index of the node according to depth-first search
  * @returns {*}
  *      =======================|==========\ token found /====================|=======\ token not found /===========
  *      {string} program       | The rest of the program without found token | null
@@ -614,15 +592,13 @@ function parseNextNodeOrSkip(program, nodeIndex, parentIndex) {
  *      {number} excPosFromEnd | null                                        | Number of chars between the end of
  *                             |                                             |      the program and the exception
  */
-function parseNextNode(program, nodeIndex, parentIndex) {
-
-    nodeIndex.index++;
+function parseNextNode(program) {
 
     let parsed = parseBestOption(
         [
-            () => parseAsCondition(program, nodeIndex, parentIndex),
-            () => parseAsAssignment(program, nodeIndex, parentIndex),
-            () => parseAsCycle(program, nodeIndex, parentIndex)
+            () => parseAsCondition(program),
+            () => parseAsAssignment(program),
+            () => parseAsCycle(program)
         ],
         'Expected Condition/Assignment/Cycle'
     );
@@ -637,7 +613,7 @@ function parseNextNode(program, nodeIndex, parentIndex) {
 
     if (res) {
         program = res[1];
-        let parsedNode = parseNextNode(program, nodeIndex, node.index);
+        let parsedNode = parseNextNode(program);
         if (parsedNode.exception) return parsedNode;
         node.setNext(parsedNode.node);
         program = parsedNode.program;
@@ -647,6 +623,43 @@ function parseNextNode(program, nodeIndex, parentIndex) {
         node: node,
         program: program
     }
+}
+
+
+/**
+ * Recursively calls the function for branches if any and sets its indexes respectively
+ *
+ * @param {AssignmentNode | ConditionNode | CycleNode} node - A node to traverse
+ * @param { {number} } nodeIndexContainer - Index which is wrapped to an object for passing by reference
+ * @param parentIndex - Index of the parent node
+ */
+function dfsTraverse(node, nodeIndexContainer, parentIndex) {
+    nodeIndexContainer.nodeIndex++;
+    let nodeIndex = nodeIndexContainer.nodeIndex;
+    node.setIndex(nodeIndex, parentIndex);
+    [
+        node.body,
+        node.trueBranch,
+        node.falseBranch,
+        node.next
+    ].forEach((branch) => {if (branch) dfsTraverse(branch, nodeIndexContainer, nodeIndex)});
+}
+
+
+/**
+ * Traverses a tree and sets indexes and parent indexes of its nodes in DFS order
+ *
+ * @param {Tree} tree - A tree to be traversed
+ * @returns {number} Number of nodes of the tree
+ */
+function setIndexesAndParents(tree) {
+    let nodeIndexContainer = {nodeIndex: 0};
+    dfsTraverse(
+        tree.root,
+        nodeIndexContainer,
+        null
+    );
+    return nodeIndexContainer.nodeIndex;
 }
 
 
@@ -664,18 +677,16 @@ function parseNextNode(program, nodeIndex, parentIndex) {
  */
 export function parse(program) {
 
-    let nodeIndex = {index: 0};
+    let node = parseNextNode(program);
 
-    let node = parseNextNode(program, nodeIndex, null);
+    program = node.program;
 
     let root = node.node,
         exception = node.exception,
-        excPosFromEnd = node.excPosFromEnd;
-    program = node.program;
-    let numberOfNodes = nodeIndex.index;
+        excPosFromEnd = node.excPosFromEnd,
+        numberOfNodes = null;
 
     if (!exception) {
-
         let regexExpression = /^\s*([\s\S]*)$/;
         let res = program.match(regexExpression);
 
@@ -687,10 +698,16 @@ export function parse(program) {
         }
     }
 
-    return new Tree({
+    let tree = new Tree({
         root: root,
-        numberOfNodes: numberOfNodes,
         exception: exception,
         excPosFromEnd: excPosFromEnd
     });
+
+    if (!exception) {
+        numberOfNodes = setIndexesAndParents(tree);
+        tree.setNumberOfNodes(numberOfNodes);
+    }
+
+    return tree;
 }
