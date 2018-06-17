@@ -13,8 +13,14 @@ export class Scroll extends React.Component{
     }
 
     handleClick(node) {
+        let transitions = this.state.transitions;
+        let parentIndex = node.parentIndex;
+        let lastIndex = transitions.findIndex(n => n.index === parentIndex);
+
+        transitions = transitions.slice(0, lastIndex + 1).concat([node]);
+
         this.setState({
-            transitions: this.state.transitions.concat([node])
+            transitions: transitions
         });
     }
 
