@@ -9,8 +9,8 @@ There is being used React framework, JavaScript
 
 # Our progress
 ### What has done for deadline of 15 June
- -- There was implemented a parser of code written in TEL programming language to create tree of tokens
+ * There was implemented a parser of code written in TEL programming language to create tree of tokens
+ * Visualization of the process of the weakest precondition's unfolding
 
 ### What has not completed yet
- -- Visualization of the process of the weakest precondition's unfolding
- -- Computing of the weakest precondition (back passing)
+ * Computing of the weakest precondition (back passing)
