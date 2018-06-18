@@ -1,5 +1,6 @@
 import React from 'react';
-import {AssignmentNode, ConditionNode, CycleNode} from "./parser/tree";
+import '../styles/style.css'
+import {AssignmentNode, ConditionNode, CycleNode} from "../parser/tree";
 
 
 export class Scroll extends React.Component{
@@ -23,10 +24,12 @@ export class Scroll extends React.Component{
     }
 
     render() {
-
         const listItems = this.state.transitions.map((node) =>
             <div key={JSON.stringify(node)}>
-                <Transition node={node} onClick={(nextNode) => this.handleClick(nextNode)}/>
+                <Transition
+                    node={node}
+                    onClick={(nextNode) => this.handleClick(nextNode)}
+                />
             </div>
         );
 
@@ -40,14 +43,21 @@ export class Scroll extends React.Component{
 
 
 export class Transition extends React.Component{
-
     render() {
         return (
             <div className='transition_container'>
                 <div className='transition'>
-                    <ProgramBlock node={this.props.node} onClick={(nextNode) => this.props.onClick(nextNode)} extract={false}/>
+                    <ProgramBlock
+                        node={this.props.node}
+                        onClick={(nextNode) => this.props.onClick(nextNode)}
+                        extract={false}
+                    />
                     <div className='eq'> = </div>
-                    <ProgramBlock node={this.props.node} onClick={(nextNode) => this.props.onClick(nextNode)} extract={true}/>
+                    <ProgramBlock
+                        node={this.props.node}
+                        onClick={(nextNode) => this.props.onClick(nextNode)}
+                        extract={true}
+                    />
                 </div>
             </div>
         )
@@ -55,9 +65,7 @@ export class Transition extends React.Component{
 }
 
 
-
 export class ProgramBlock extends React.Component{
-
     printWP(node, extract) {
         const color = {
             backgroundColor: getColor(node.index),
@@ -88,7 +96,6 @@ export class ProgramBlock extends React.Component{
     }
 
     printNode(node, extract) {
-        
         let block = [node];
         if (!extract) {
             while (block[block.length - 1].next)
@@ -98,14 +105,14 @@ export class ProgramBlock extends React.Component{
         block = block.map((node) => {
             if (node instanceof AssignmentNode) {
 
-                let y = node.varLeft;
+                let u = node.varLeft;
                 let x1 = node.var1 ? node.var1 : node.const1;
                 let sign = node.sign;
                 let x2 = node.var2 ? node.var2 : node.const2;
 
                 return (
                     <div key={JSON.stringify(node)}>
-                        {y} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''}
+                        {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''}
                     </div>
                 )
 
@@ -134,8 +141,8 @@ export class ProgramBlock extends React.Component{
                               {this.printNode(node.body, false)}
                             )
                         </div>
-
                 )
+
             } else if (node instanceof ConditionNode) {
 
                 let comp1 = node.compVar1 ? node.compVar1 : node.compConst1;
@@ -161,8 +168,8 @@ export class ProgramBlock extends React.Component{
                               {this.printNode(node.falseBranch, false)}
                             )
                         </div>
-
                 )
+
             } else {
                 throw new Error('Unexpected class of node: \'' + node.constructor.name + '\'')
             }
@@ -173,7 +180,6 @@ export class ProgramBlock extends React.Component{
                 {block}
             </div>
         )
-
     }
 
     render() {
@@ -184,6 +190,7 @@ export class ProgramBlock extends React.Component{
         )
     }
 }
+
 
 function getColor(number) {
     switch (number % 12) {

@@ -1,0 +1,136 @@
+$font_primary: Arial, Helvetica, sans-serif
+$font_button: Arial, Helvetica, sans-serif
+$font_code: monospace
+
+$color_font_primary: aliceblue
+$color_font_button: #a7afb6
+
+$color_background_primary: #4a6572
+$color_background_code: #2b2b2b
+
+$color_button: #344955
+$color_button_alt: #2e4652
+
+$color_exception_highlight: #ec534c
+$color_exception_message: #d99e5f
+
+body
+	background-color: $color_background_primary
+	color: $color_font_primary
+
+.parser_block
+	display: inline-block
+
+	.submit_form
+		display: inline-block
+		float: left
+		margin: 10px
+
+		.area
+			display: block
+			min-width: 40em
+			min-height: 30em
+			background-color: $color_background_code
+			border: none
+			color: $color_font_primary
+			outline: none
+			padding: 8px
+			line-height: 1.4
+			font-family: $font_code
+
+		.button
+			display: block
+			margin-top: 4px
+			width: 100%
+			background-color: $color_button
+			border: none
+			color: $color_font_button
+			padding: 8px
+			outline: none
+			font-family: $font_button
+
+			&:hover, &:active
+				background-color: $color_button_alt
+				cursor: pointer
+
+	.exception_block
+		display: inline-block
+		float: left
+		margin: 10px
+		padding: 8px
+		border-left: 5px solid $color_exception_message
+
+		.code
+			display: block
+			background-color: $color_background_code
+			margin: 0
+			padding: 8px
+			line-height: 1.4
+			font-family: $font_code
+			user-select: none
+
+			.letter
+				background-color: $color_exception_highlight
+				padding: 0
+				user-select: none
+
+		.message
+			user-select: none
+			color: $color_exception_message
+			font-weight: bold
+			display: block
+			margin-bottom: 10px
+			font-family: $font_primary
+
+.transition_container
+	padding: 10px 0 10px
+	border-bottom: 5px solid $color_button
+	text-align: center
+
+	.transition
+		display: inline-block
+		user-select: none
+
+		.button_next_wp, .solid_program, .wp_wrapper, .program_block, .eq
+			display: inline-block
+			vertical-align: middle
+			line-height: normal
+			text-align: left
+
+		.program_block
+			display: inline-block
+			padding: 0.5em 2em 0.5em 1em
+			background-color: $color_background_code
+
+			.wp_wrapper, .solid_program
+				line-height: 1.4
+				font-family: $font_code
+
+			.button_next_wp
+				border: none
+				padding: 0.5em 0 0.5em
+				outline: none
+				margin: 5px 0 5px 1em
+
+				&:hover, &:active
+					cursor: pointer
+
+				.solid_program
+					background-color: $color_background_code
+					padding: 0.5em 1em 0.5em 0
+					margin-left: 1em
+					text-align: left
+
+			.wp_wrapper
+				margin-left: 1em
+				margin-right: 1em
+				color: $color_font_primary
+
+			.block
+				margin-left: 1em
+				color: $color_font_primary
+
+		.eq
+			margin: 0 1em 0
+			font-size: 40pt
+			font-weight: bold
