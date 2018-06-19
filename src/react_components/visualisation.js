@@ -35,6 +35,9 @@ export class Scroll extends React.Component{
 
         return (
             <div>
+                <button className='button' onClick={() => this.props.onBack()}>
+                    &lt;= BACK
+                </button>
                 {listItems}
             </div>
         )

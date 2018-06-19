@@ -16,13 +16,13 @@ export class MainComponent extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleSubmit(event) {
+    handleSubmit(e) {
         let tree = parse(this.state.program);
         this.setState({
             tree: tree,
             submittedProgram: this.state.program
         });
-        event.preventDefault();
+        e.preventDefault();
     }
 
     handleChange(e) {
@@ -31,11 +31,20 @@ export class MainComponent extends React.Component {
         });
     }
 
+    handleBack(e) {
+        this.setState({
+            tree: null,
+        });
+    }
+
     render() {
         if (this.state.tree && !this.state.tree.exception) {
 
             return (
-                <Scroll root={this.state.tree.root}/>
+                <Scroll
+                    root={this.state.tree.root}
+                    onBack={() => this.handleBack()}
+                />
             )
 
         } else {

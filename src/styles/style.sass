@@ -18,6 +18,20 @@ body
 	background-color: $color_background_primary
 	color: $color_font_primary
 
+.button
+	display: block
+	margin-top: 4px
+	background-color: $color_button
+	border: none
+	color: $color_font_button
+	padding: 8px
+	outline: none
+	font-family: $font_button
+
+	&:hover, &:active
+		background-color: $color_button_alt
+		cursor: pointer
+
 .parser_block
 	display: inline-block
 
@@ -39,19 +53,7 @@ body
 			font-family: $font_code
 
 		.button
-			display: block
-			margin-top: 4px
 			width: 100%
-			background-color: $color_button
-			border: none
-			color: $color_font_button
-			padding: 8px
-			outline: none
-			font-family: $font_button
-
-			&:hover, &:active
-				background-color: $color_button_alt
-				cursor: pointer
 
 	.exception_block
 		display: inline-block
