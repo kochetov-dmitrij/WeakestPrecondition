@@ -27,6 +27,7 @@ body
 	padding: 8px
 	outline: none
 	font-family: $font_button
+	user-select: none
 
 	&:hover, &:active
 		background-color: $color_button_alt
@@ -103,6 +104,12 @@ body
 			display: inline-block
 			padding: 0.5em 2em 0.5em 1em
 			background-color: $color_background_code
+
+			.precondition
+				color: $color_font_primary
+				line-height: 1.4
+				font-family: $font_code
+
 
 			.wp_wrapper, .solid_program
 				line-height: 1.4

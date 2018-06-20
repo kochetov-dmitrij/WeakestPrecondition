@@ -11,6 +11,17 @@ export class Scroll extends React.Component{
         }
     }
 
+    replaceSolved(node) {
+        let transitions = this.state.transitions;
+        if (node === transitions[transitions.length - 1]) {
+            this.setState({
+                transitions: transitions.pop()
+            });
+        } else {
+            throw new Error('Replaced node isn\'t last');
+        }
+    }
+
     handleClick(node) {
         let transitions = this.state.transitions;
         let parentIndex = node.parentIndex;
@@ -74,14 +85,25 @@ export class ProgramBlock extends React.Component{
             backgroundColor: getColor(node.index),
         };
 
+        if (node.isLeaf() && !node.precondition) {
+            node.setPrecondition('nibba precondition');
+        }
+
         return (
             extract ?
-                <div className="wp_wrapper">
-                    wp{node.index}(
-                    {this.printNode(node, extract)}
-                    {node.next ? this.printWP(node.next, false) : ''}
-                    )
-                </div> :
+                (node.enablePrecondition || node.isLeaf()) ?
+                    <div className="precondition">
+                        {node.precondition}
+                        {node.index > 1 ? <button>^</button> : ''}
+                    </div>
+                    :
+                    <div className="wp_wrapper">
+                        wp{node.index}(
+                        {this.printNode(node, extract)}
+                        {node.next ? this.printWP(node.next, false) : ''}
+                        )
+                    </div>
+                :
                 <div>
                     <button style={color} className='button_next_wp' onClick={() => this.props.onClick(node)}>
                         <div className="wp_wrapper">
