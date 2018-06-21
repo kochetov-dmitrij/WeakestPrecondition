@@ -14,13 +14,10 @@
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
-
     "start-js": "react-scripts start",
     "build-js": "react-scripts build",
-
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm-run-all build-css build-js",
-
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

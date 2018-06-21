@@ -7,12 +7,20 @@ export class CodeForm extends React.Component {
         return (
             <form className='submit_form' onSubmit={(e) => this.props.onSubmit(e)}>
                 <textarea
-                    className='area'
+                    className='area program'
                     spellCheck='false'
                     placeholder='Enter your code here'
                     name='code'
                     value={this.props.codeText}
                     onChange={(e) => this.props.onChange(e)}
+                />
+                <textarea
+                    className='area condition'
+                    spellCheck='false'
+                    placeholder='Enter post condition for the program here'
+                    name='condition'
+                    value={this.props.postCondition}
+                    onChange={(e) => this.props.onChangeCondition(e)}
                 />
                 <input
                     className='button'

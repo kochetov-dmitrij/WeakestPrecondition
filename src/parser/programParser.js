@@ -1,4 +1,6 @@
 import {Tree, AssignmentNode, ConditionNode, CycleNode} from "./tree";
+import {parseBestOption} from './bestOption'
+import {parseAsFormula} from "./formulaParser";
 
 
 /*
@@ -17,47 +19,7 @@ import {Tree, AssignmentNode, ConditionNode, CycleNode} from "./tree";
 */
 
 
-/**
- * Picks first appropriate parse function if any, otherwise return exception of a function that parsed furthest
- *
- * @param {[function]} options - array of parse functions
- * @param messageOnEqual - exception message if all functions parsed the same number of chars before an exception
- * @returns {*}
- *      =======================|=====\ token found /=====|===================\ token not found /========================
- *      {string} node          | null                    | null
- *      {string} program       | The rest of the program | null
- *                             |     without found token |
- *                             |                         |===\ excPosFromEnd equal /==|==\ excPosFromEnd not equal /====
- *      {number} excPosFromEnd | null                    | excPosFromEnd from options | min excPosFromEnd from options
- *      {string} exception     | null                    | messageOnEqual             | exception with min excPosFromEnd
- */
-function parseBestOption(options, messageOnEqual) {
 
-    if (options.length < 2) throw new Error('[options] have to contain more than one function');
-    let excepted = [];
-    let parsed = null;
-
-    do {
-        parsed = options.pop()();
-        excepted.push(parsed);
-    } while (parsed.exception && (options.length > 0));
-
-    if (parsed.exception) {
-
-        excepted = excepted.sort((a,b) => a.excPosFromEnd - b.excPosFromEnd);
-
-        if (excepted[0].excPosFromEnd === excepted[excepted.length-1].excPosFromEnd) {
-            return {
-                exception: messageOnEqual,
-                excPosFromEnd: excepted[0].excPosFromEnd
-            }
-        } else {
-            return excepted[0];
-        }
-    } else {
-        return parsed
-    }
-}
 
 
 /**
@@ -166,7 +128,7 @@ function parseAsComparison(program) {
     program = res.program;
 
 
-    let regexExpression2 = /^\s*(=|>|<|~\s*=|>\s*=|<\s*=)?([\s\S]*)$/;
+    let regexExpression2 = /^\s*(~\s*=|>\s*=|<\s*=|=|>|<)([\s\S]*)$/;
     res = program.match(regexExpression2);
     if (!res) return {
         exception: 'Expected a comparison sign',
@@ -433,28 +395,23 @@ function parseAsCondition(program) {
  */
 function parseAsCycle(program) {
     let res,
-        invConst1, invVar1, invSign, invConst2, invVar2,
+        invariant,
         compConst1, compVar1, compSign, compConst2, compVar2,
         body;
 
-    let regexExpression1 = /^\s*\(\s*WHINV\s{2,}([\s\S]*)$/;
+    let regexExpression1 = /^\s*\(\s*WIN\s{2,}([\s\S]*)$/;
     res = program.match(regexExpression1);
     if (!res) return {
-        exception: 'Expected \'(WHINV  \'',
+        exception: 'Expected \'(WIN  \'',
         excPosFromEnd: program.length
     };
     program = res[1];
 
 
-    res = parseAsComparison(program);
+    res = parseAsFormula(program);
     if (res.exception) return res;
-    invConst1 = res.const1;
-    invVar1 = res.var1;
-    invSign = res.sign;
-    invConst2 = res.const2;
-    invVar2 = res.var2;
-    program = res.program;
-
+    program = res.formula;
+    invariant = res.parsed;
 
     let regexExpression2 = /^\s{2,}EOI\s{2,}([\s\S]*)$/;
     res = program.match(regexExpression2);
@@ -501,11 +458,7 @@ function parseAsCycle(program) {
 
 
     let cycleNode = new CycleNode({
-        invConst1: invConst1,
-        invVar1: invVar1,
-        invSign: invSign,
-        invConst2: invConst2,
-        invVar2: invVar2,
+        invariant: invariant,
         compConst1: compConst1,
         compVar1: compVar1,
         compSign: compSign,
@@ -668,18 +621,17 @@ function setIndexesAndParents(tree) {
  *
  * @param {string} program - Program source to be parsed into tree
  * @returns {Tree}
- *      =======================|===========\ successfully parsed /===========|=========\ failed parse /==========
+ *      =======================|===========\ successfully parsed /===========|=========\ failed parseProgram /==========
  *      {*Node} root           | First node of the tree                      | null
  *      {number} numberOfNodes | Number of parsed <*Node>                    | null
  *      {string} exception     | null                                        | Exception message
  *      {number} excPosFromEnd | null                                        | Number of chars between the end of
  *                             |                                             |      the program and the exception
  */
-export function parse(program) {
+export function parseProgram(program) {
 
     let programLength = program.length;
     let node = parseNextNode(program);
-    program = node.program;
 
     let root = node.node,
         exception = node.exception,
@@ -687,6 +639,8 @@ export function parse(program) {
         numberOfNodes = null;
 
     if (!exception) {
+        program = node.program;
+
         let regexExpression = /^\s*([\s\S]*)$/;
         let res = program.match(regexExpression);
 

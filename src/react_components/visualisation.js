@@ -39,6 +39,7 @@ export class Scroll extends React.Component{
             <div key={JSON.stringify(node)}>
                 <Transition
                     node={node}
+                    postCondition={this.props.postCondition}
                     onClick={(nextNode) => this.handleClick(nextNode)}
                 />
             </div>
@@ -63,12 +64,14 @@ export class Transition extends React.Component{
                 <div className='transition'>
                     <ProgramBlock
                         node={this.props.node}
+                        postCondition={this.props.postCondition}
                         onClick={(nextNode) => this.props.onClick(nextNode)}
                         extract={false}
                     />
                     <div className='eq'> = </div>
                     <ProgramBlock
                         node={this.props.node}
+                        postCondition={this.props.postCondition}
                         onClick={(nextNode) => this.props.onClick(nextNode)}
                         extract={true}
                     />
@@ -80,13 +83,13 @@ export class Transition extends React.Component{
 
 
 export class ProgramBlock extends React.Component{
-    printWP(node, extract) {
+    printWP(node, extract, postCondition) {
         const color = {
             backgroundColor: getColor(node.index),
         };
 
         if (node.isLeaf() && !node.precondition) {
-            node.setPrecondition('nibba precondition');
+            node.setPrecondition(this.props.postCondition);
         }
 
         return (
@@ -100,7 +103,7 @@ export class ProgramBlock extends React.Component{
                     <div className="wp_wrapper">
                         wp{node.index}(
                         {this.printNode(node, extract)}
-                        {node.next ? this.printWP(node.next, false) : ''}
+                        {/*{node.next ? this.printWP(node.next, false) : ''}*/}
                         )
                     </div>
                 :
@@ -113,7 +116,7 @@ export class ProgramBlock extends React.Component{
                             {this.printNode(node, extract)}
                         </div>
                         <div className="wp_wrapper">
-                            | ф)
+                            | {this.props.postCondition})
                         </div>
                     </button>
                 </div>
@@ -143,9 +146,7 @@ export class ProgramBlock extends React.Component{
 
             } else if (node instanceof CycleNode) {
 
-                let inv1 = node.invVar1 ? node.invVar1 : node.invConst1;
-                let invSign = node.invSign;
-                let inv2 = node.invVar2 ? node.invVar2 : node.invConst2;
+                let invariant = node.invariant;
                 let comp1 = node.compVar1 ? node.compVar1 : node.compConst1;
                 let compSign = node.compSign;
                 let comp2 = node.compVar2 ? node.compVar2 : node.compConst2;
@@ -153,16 +154,11 @@ export class ProgramBlock extends React.Component{
                 return (
                     extract ?
                         <div key={JSON.stringify(node)}>
-                            ( ( {comp1} {compSign} {comp2} ) & ( {inv1} {invSign} {inv2} ) ->
-                              {this.printWP(node.body, false)}
-                              ) <br/>
-                             &&<br/>
-                              ( !( {comp1} {compSign} {comp2} ) & ( {inv1} {invSign} {inv2} ) -> ф )
-                            )
+                            {invariant}
                         </div>
                         :
                         <div key={JSON.stringify(node)}>
-                            (WHINV {inv1} {invSign} {inv2} EOI {comp1} {compSign} {comp2} DO
+                            (WIN {invariant} EOI {comp1} {compSign} {comp2} DO
                               {this.printNode(node.body, false)}
                             )
                         </div>
@@ -178,11 +174,27 @@ export class ProgramBlock extends React.Component{
                     extract ?
                         <div key={JSON.stringify(node)}>
                             ( {comp1} {compSign} {comp2} ->
-                              {this.printWP(node.trueBranch, false)}
+                                {node.trueBranch.enablePrecondition ? node.trueBranch.precondition :
+                                    !node.next ? this.printWP(node.trueBranch, false, this.props.postCondition) :
+                                        node.next.enablePrecondition ? this.printWP(node.trueBranch, false, node.next.precondition) :
+                                            <div> wp{node.trueBranch.index}( <br/>
+                                                {this.printNode(node.trueBranch, false)} <br/>
+                                                {this.printWP(node.trueBranch, false, this.props.postCondition)} <br/>
+                                                )
+                                            </div>
+                                }
                             )<br />
                               && <br />
                             ( !( {comp1} {compSign} {comp2} ) ->
-                              {this.printWP(node.falseBranch, false)}
+                                {node.falseBranch.enablePrecondition ? node.falseBranch.precondition :
+                                    !node.next ? this.printWP(node.falseBranch, false, this.props.postCondition) :
+                                        node.next.enablePrecondition ? this.printWP(node.falseBranch, false, node.next.precondition) :
+                                            <div> wp{node.falseBranch.index}( <br/>
+                                                {this.printNode(node.falseBranch, false)} <br/>
+                                                {this.printWP(node.falseBranch, false, this.props.postCondition)} <br/>
+                                                )
+                                            </div>
+                                }
                             )
                         </div>
                         :

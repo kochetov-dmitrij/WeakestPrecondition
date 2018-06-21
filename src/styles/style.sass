@@ -20,7 +20,6 @@ body
 
 .button
 	display: block
-	margin-top: 4px
 	background-color: $color_button
 	border: none
 	color: $color_font_button
@@ -37,14 +36,13 @@ body
 	display: inline-block
 
 	.submit_form
-		display: inline-block
+		display: block
 		float: left
 		margin: 10px
 
 		.area
 			display: block
 			min-width: 40em
-			min-height: 30em
 			background-color: $color_background_code
 			border: none
 			color: $color_font_primary
@@ -52,6 +50,14 @@ body
 			padding: 8px
 			line-height: 1.4
 			font-family: $font_code
+			margin-bottom: 4px
+			width: 100%
+
+		.program
+			min-height: 30em
+
+		.condition
+			min-height: 1.5em
 
 		.button
 			width: 100%
