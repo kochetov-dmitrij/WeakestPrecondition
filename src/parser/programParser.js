@@ -584,18 +584,18 @@ function parseNextNode(program) {
  *
  * @param {AssignmentNode | ConditionNode | CycleNode} node - A node to traverse
  * @param { {number} } nodeIndexContainer - Index which is wrapped to an object for passing by reference
- * @param parentIndex - Index of the parent node
+ * @param parent - Parent node
  */
-function dfsTraverse(node, nodeIndexContainer, parentIndex) {
+function dfsTraverse(node, nodeIndexContainer, parent) {
     nodeIndexContainer.nodeIndex++;
     let nodeIndex = nodeIndexContainer.nodeIndex;
-    node.setIndex(nodeIndex, parentIndex);
+    node.setIndex(nodeIndex, parent);
     [
         node.body,
         node.trueBranch,
         node.falseBranch,
         node.next
-    ].forEach((branch) => {if (branch) dfsTraverse(branch, nodeIndexContainer, nodeIndex)});
+    ].forEach((branch) => {if (branch) dfsTraverse(branch, nodeIndexContainer, node)});
 }
 
 

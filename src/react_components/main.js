@@ -4,6 +4,7 @@ import {parseProgram} from '../parser/programParser'
 import {Scroll} from './visualisation';
 import {CodeForm, ExceptionBlock} from './parsing';
 import {parseFormula} from "../parser/formulaParser";
+import {ConditionNode, EmptyNode} from "../parser/tree";
 
 
 export class MainComponent extends React.Component {
@@ -53,10 +54,36 @@ export class MainComponent extends React.Component {
     render() {
         if (this.state.tree && !this.state.tree.exception && this.state.parsedPostCondition && !this.state.parsedPostCondition.exception) {
 
+            let root = this.state.tree.root;
+            let lastNode = root;
+            while (lastNode.next) lastNode = lastNode.next;
+            lastNode.next = new EmptyNode();
+            let emptyNode = lastNode.next;
+            emptyNode.setPrecondition(this.state.parsedPostCondition.formula);
+
+            let precondition = emptyNode.precondition;
+
+            if (lastNode instanceof ConditionNode) {
+                putEmptyNode(lastNode.trueBranch);
+                putEmptyNode(lastNode.falseBranch);
+            }
+
+            function putEmptyNode(nodee) {
+                let node = nodee;
+                while (node.next) node = node.next;
+                if (node instanceof ConditionNode) {
+                    putEmptyNode(node.trueBranch);
+                    putEmptyNode(node.falseBranch);
+                } else {
+                    let emptyNode = new EmptyNode();
+                    emptyNode.setPrecondition(precondition);
+                    node.next = emptyNode;
+                }
+            }
+
             return (
                 <Scroll
-                    root={this.state.tree.root}
-                    postCondition={this.state.parsedPostCondition.formula}
+                    root={root}
                     onBack={() => this.handleBack()}
                 />
             )

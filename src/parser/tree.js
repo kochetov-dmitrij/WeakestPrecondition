@@ -13,7 +13,7 @@ export class Tree {
     }
 }
 
-class Node {
+export class Node {
     constructor() {
         this.enablePrecondition = false;
         this.precondition = null;
@@ -24,13 +24,28 @@ class Node {
         this.exception = next.exception;
     }
 
-    setIndex(index, parentIndex) {
+    setIndex(index, parent) {
         this.index = index;
-        this.parentIndex = parentIndex;
+        this.parent = parent;
     }
 
     setEnablePrecondition(bool) {
         this.enablePrecondition = bool;
+    }
+}
+
+export class EmptyNode extends Node {
+    constructor() {
+        super();
+        this.enablePrecondition = true;
+    }
+
+    isLeaf() {
+        throw new Error('chtoto poshlo ne tak');
+    }
+
+    setPrecondition(precondition) {
+        this.precondition = precondition;
     }
 }
 
@@ -51,14 +66,14 @@ export class AssignmentNode extends Node {
     }
 
     isLeaf() {
-        return !this.next;
+        return (this.next instanceof EmptyNode);
     }
 
-    setPrecondition(postCondition) {
+    setPrecondition() {
 
         if (!this.canEnablePrecondition()) throw new Error('Can\'t enable precondition for the AssignmentNode, children aren\'t calculated');
 
-        if (this.next) postCondition = this.next.precondition;
+        let postCondition = this.next.precondition;
 
         let var1 = this.var1;
         let var2 = this.var2;
@@ -66,11 +81,11 @@ export class AssignmentNode extends Node {
         let const1 = this.const1;
         let const2 = this.const2;
 
-        let varLeft = new RegExp(this.varLeft);
+        let varLeft = new RegExp('[\\s(]'+this.varLeft+'[)\\s]');
         let rightPart = (var1 ? var1 : const1) + sign ? ' ' + sign + ' ' + (var2 ? var2 : const2) : '';
         this.precondition = postCondition.replace(varLeft, '(' + rightPart + ')');
 
-        this.setEnablePrecondition(true);
+        console.log(varLeft)
     }
 
     canEnablePrecondition() {
@@ -96,10 +111,10 @@ export class ConditionNode extends Node {
     }
 
     isLeaf() {
-        return !(this.next || this.trueBranch || this.falseBranch);
+        return false;
     }
 
-    setPrecondition(postCondition) {
+    setPrecondition() {
 
         if (!this.canEnablePrecondition()) throw new Error('Can\'t enable precondition for the ConditionNode, children aren\'t calculated');
 
@@ -110,11 +125,15 @@ export class ConditionNode extends Node {
         let compConst2 = this.compConst2;
         let trueBranch = this.trueBranch;
         let falseBranch = this.falseBranch;
-        let next = this.next;
 
-        // this.precondition = '(' + compVar1 ? compVar1 : compConst1 + ' ' + compSign + ' ' + trueBranch ? trueBranch.precondition : ;
+        this.precondition =
+            '(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
+                trueBranch.precondition +
+            ') && ( !(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
+                falseBranch.precondition +
+            ')';
 
-        this.setEnablePrecondition(true);
+        console.log(this.precondition);
     }
 
     canEnablePrecondition() {
@@ -149,7 +168,6 @@ export class CycleNode extends Node {
 
     setPrecondition(postCondition) {
         this.precondition = this.invariant;
-        this.setEnablePrecondition(true);
     }
 
     canEnablePrecondition() {
