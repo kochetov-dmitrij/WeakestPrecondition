@@ -140,11 +140,11 @@ export class ConditionNode extends Node {
         let falseBranch = this.falseBranch;
 
         this.precondition =
-            '(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
+            '((' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
                 trueBranch.precondition +
             ') && ( !(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
                 falseBranch.precondition +
-            ')';
+            '))';
 
         console.log(this.precondition);
     }

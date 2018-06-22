@@ -36,11 +36,11 @@ export class Scroll extends React.Component{
             if (node instanceof ConditionNode) {
                 putEmptyNode(node.trueBranch);
                 putEmptyNode(node.falseBranch);
-            } else {
-                let emptyNode = new EmptyNode();
-                emptyNode.setPrecondition(precondition);
-                node.next = emptyNode;
             }
+            let emptyNode = new EmptyNode();
+            emptyNode.setPrecondition(precondition);
+            node.next = emptyNode;
+
         }
 
         node.setEnablePrecondition(true);
