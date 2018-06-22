@@ -75,17 +75,30 @@ export class AssignmentNode extends Node {
 
         let postCondition = this.next.precondition;
 
+        let varLeft = this.varLeft;
         let var1 = this.var1;
         let var2 = this.var2;
         let sign = this.sign;
         let const1 = this.const1;
         let const2 = this.const2;
 
-        let varLeft = new RegExp('[\\s(]'+this.varLeft+'[)\\s]');
-        let rightPart = (var1 ? var1 : const1) + sign ? ' ' + sign + ' ' + (var2 ? var2 : const2) : '';
-        this.precondition = postCondition.replace(varLeft, '(' + rightPart + ')');
+        let rightPart = ((var1 ? var1 : const1) + ((sign) ? (' ' + sign + ' ' + (var2 ? var2 : const2)) : ''));
 
-        console.log(varLeft)
+        let index, beginWith = 0;
+        while ((index = postCondition.indexOf(varLeft, beginWith)) !== -1) {
+            if ((index === 0 || postCondition[index-1] === ' ' || postCondition[index- 1] === '(') &&
+                (index + varLeft.length === postCondition.length || postCondition[index + varLeft.length] === ' ' || postCondition[index + varLeft.length] === ')')) {
+                let firstPart = postCondition.slice(0, index) + ' (';
+                for (let i = 0; i < rightPart.length; ++i) {
+                    firstPart += rightPart[i];
+                }
+                postCondition = firstPart + ')' + postCondition.slice(index + varLeft.length);
+                beginWith = firstPart.length;
+            }
+            ++beginWith;
+        }
+
+        this.precondition = postCondition;
     }
 
     canEnablePrecondition() {
