@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/style.css';
 import {parseProgram} from '../parser/programParser'
-import {Scroll} from './visualisation';
+import {putEmptyNode, Scroll} from './visualisation';
 import {CodeForm, ExceptionBlock} from './parsing';
 import {parseFormula} from "../parser/formulaParser";
 import {ConditionNode, EmptyNode} from "../parser/tree";
@@ -64,21 +64,8 @@ export class MainComponent extends React.Component {
             let precondition = emptyNode.precondition;
 
             if (lastNode instanceof ConditionNode) {
-                putEmptyNode(lastNode.trueBranch);
-                putEmptyNode(lastNode.falseBranch);
-            }
-
-            function putEmptyNode(nodee) {
-                let node = nodee;
-                while (node.next) node = node.next;
-                if (node instanceof ConditionNode) {
-                    putEmptyNode(node.trueBranch);
-                    putEmptyNode(node.falseBranch);
-                } else {
-                    let emptyNode = new EmptyNode();
-                    emptyNode.setPrecondition(precondition);
-                    node.next = emptyNode;
-                }
+                putEmptyNode(lastNode.trueBranch, precondition);
+                putEmptyNode(lastNode.falseBranch, precondition);
             }
 
             return (
@@ -102,7 +89,7 @@ export class MainComponent extends React.Component {
 
                     {this.state.tree && this.state.tree.exception?
                         <ExceptionBlock
-                            exception={this.state.tree.exception}
+                            exception={'Program: ' + this.state.tree.exception}
                             program={this.state.submittedProgram}
                             exceptionPosition={this.state.tree.exceptionPosition}
                         /> : ''
@@ -110,7 +97,7 @@ export class MainComponent extends React.Component {
 
                     {this.state.parsedPostCondition && this.state.parsedPostCondition.exception ?
                         <ExceptionBlock
-                            exception={this.state.parsedPostCondition.exception}
+                            exception={'Postcondition: ' + this.state.parsedPostCondition.exception}
                             program={this.state.submittedPostCondition}
                             exceptionPosition={this.state.parsedPostCondition.exceptionPosition}
                         /> : ''

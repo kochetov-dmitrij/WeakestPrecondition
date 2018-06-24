@@ -11,7 +11,7 @@ export class Scroll extends React.Component{
         }
     }
 
-    solvePrecondition(node) {
+    substitutePrecondition(node) {                              
         let transitions = this.state.transitions;
         if (node === transitions[transitions.length - 1]) {
             transitions.pop();
@@ -26,21 +26,8 @@ export class Scroll extends React.Component{
         let precondition = node.precondition;
 
         if (node.parent instanceof ConditionNode) {
-            putEmptyNode(node.parent.trueBranch);
-            putEmptyNode(node.parent.falseBranch);
-        }
-
-        function putEmptyNode(nodee) {
-            let node = nodee;
-            while (node.next) node = node.next;
-            if (node instanceof ConditionNode) {
-                putEmptyNode(node.trueBranch);
-                putEmptyNode(node.falseBranch);
-            }
-            let emptyNode = new EmptyNode();
-            emptyNode.setPrecondition(precondition);
-            node.next = emptyNode;
-
+            putEmptyNode(node.parent.trueBranch, precondition);
+            putEmptyNode(node.parent.falseBranch, precondition);
         }
 
         node.setEnablePrecondition(true);
@@ -60,10 +47,10 @@ export class Scroll extends React.Component{
 
     render() {
         const listItems = this.state.transitions.map((node) =>
-            <div>
+            <div key={node.index}>
                 <Transition
                     node={node}
-                    solvePrecondition={(node) => this.solvePrecondition(node)}
+                    substitutePrecondition={(node) => this.substitutePrecondition(node)}
                     onClick={(nextNode) => this.handleClick(nextNode)}
                 />
             </div>
@@ -83,50 +70,41 @@ export class Scroll extends React.Component{
 
 export class Transition extends React.Component{
     render() {
-
         let node = this.props.node;
-
-        if (node.isLeaf() && !node.precondition) {
-            node.setPrecondition();
-        }
-
-        if ((node instanceof ConditionNode) && node.trueBranch.enablePrecondition && node.falseBranch.enablePrecondition) {
-            node.setPrecondition();
-        }
 
         return (
             <div className='transition_container'>
                 <div className='transition'>
                     <ProgramBlock
                         node={node}
-                        solvePrecondition={(node) => this.props.solvePrecondition(node)}
+                        substitutePrecondition={(node) => this.props.substitutePrecondition(node)}
                         onClick={(nextNode) => this.props.onClick(nextNode)}
                         extract={false}
                     />
                     <div className='eq'> = </div>
-                    {((node instanceof ConditionNode) && node.precondition ) ?
+                    {((node instanceof ConditionNode) && node.trueBranch.enablePrecondition && node.falseBranch.enablePrecondition ) ?
                         <ProgramBlock
                             node={node}
-                            magic={true}
-                            solvePrecondition={(node) => this.props.solvePrecondition(node)}
+                            canSubstitute={true}
+                            substitutePrecondition={(node) => this.props.substitutePrecondition(node)}
                             onClick={(nextNode) => this.props.onClick(nextNode)}
                             extract={true}
                         />
                         :
                         <ProgramBlock
                             node={node}
-                            solvePrecondition={(node) => this.props.solvePrecondition(node)}
+                            substitutePrecondition={(node) => this.props.substitutePrecondition(node)}
                             onClick={(nextNode) => this.props.onClick(nextNode)}
                             extract={true}
                         />
                     }
                     {(node instanceof AssignmentNode && !node.isLeaf() && node.next.enablePrecondition) ?
-                        <div className='eq'>
+                        <div className='third_block'>
                             <div className='eq'> = </div>
                             <ProgramBlock
                                 node={node}
-                                magic={true}
-                                solvePrecondition={(node) => this.props.solvePrecondition(node)}
+                                canSubstitute={true}
+                                substitutePrecondition={(node) => this.props.substitutePrecondition(node)}
                                 onClick={(nextNode) => this.props.onClick(nextNode)}
                                 extract={true}
                             />
@@ -144,18 +122,31 @@ export class Transition extends React.Component{
 export class ProgramBlock extends React.Component{
 
     printWP(node, extract) {
+        const clr = getColor(node.index);
         const color = {
-            backgroundColor: getColor(node.index),
+            backgroundColor: clr,
+        };
+        const calculatedPreconditionColor = {
+            'border-color': clr,
         };
 
-        if (this.props.magic) node.setPrecondition();
+        if (!node.precondition && (node.isLeaf() || this.props.canSubstitute)) node.setPrecondition();
 
         return (
             extract ?
-                (node.enablePrecondition || node.isLeaf() || this.props.magic) ?
-                    <div className="precondition">
-                        {node.precondition}
-                        {node.index > 1 ? <button onClick={() => this.props.solvePrecondition(node)}>^</button> : ''}
+                (node.isLeaf() || this.props.canSubstitute) ?
+                    <div>
+                        <div className="precondition">
+                            {node.precondition}
+                        </div>
+                        {node.index > 1 ?
+                            <button
+                                className='substitute_button'
+                                style={color}
+                                onClick={() => this.props.substitutePrecondition(node)}>
+                                    =Substitute all wp{node.index}=
+                           </button> : ''
+                        }
                     </div>
                     :
                     (node instanceof ConditionNode) ?
@@ -165,29 +156,27 @@ export class ProgramBlock extends React.Component{
                         :
                         <div className="wp_wrapper">
                             wp{node.index}(
-                            {this.printNode(node, extract)}
-                            {/*{node.next ? this.printWP(node.next, false) : ''}*/}
+                                {this.printNode(node, extract)}
                             )
                         </div>
                 :
                 node.enablePrecondition ?
-                    <div>
-                        | <div style={color} className="wp_wrapper"> {node.precondition} </div>
+                    <div style={calculatedPreconditionColor}
+                         className="calculated_precondition">
+                            {node.precondition}
                     </div>
                     :
-                    <div>
-                        <button style={color} className='button_next_wp' onClick={() => this.props.onClick(node)}>
-                            <div className="wp_wrapper">
-                                wp{node.index}(
-                            </div>
-                            <div className='solid_program'>
-                                {this.printNode(node, extract)}
-                            </div>
-                            <div className="wp_wrapper">
-                                | {getPostcondition(node)})
-                            </div>
-                        </button>
-                    </div>
+                    <button style={color} className='button_next_wp' onClick={() => this.props.onClick(node)}>
+                        <div className="wp_wrapper">
+                            wp{node.index}(
+                        </div>
+                        <div className='solid_program'>
+                            {this.printNode(node, extract)}
+                        </div>
+                        <div className="wp_wrapper">
+                            ; {getPostcondition(node)})
+                        </div>
+                    </button>
         )
     }
 
@@ -208,12 +197,13 @@ export class ProgramBlock extends React.Component{
 
                 return (
                     extract ?
-                        <div>
-                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''}
-                            {!node.isLeaf() ? this.printWP(node.next, false) : ''}
-                        </div> :
-                        <div>
-                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''}
+                        <div key={node.index}>
+                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''} ;
+                            {!node.isLeaf() ? <div style={{display:'inline-block'}}>{this.printWP(node.next, false)}</div> : ''}
+                        </div>
+                        :
+                        <div key={node.index}>
+                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''} {node.next && !(node.next instanceof EmptyNode) ? ';':''}
                         </div>
                 )
 
@@ -226,14 +216,14 @@ export class ProgramBlock extends React.Component{
 
                 return (
                     extract ?
-                        <div>
+                        <div key={node.index}>
                             {invariant}
                         </div>
                         :
-                        <div>
+                        <div key={node.index}>
                             (WIN {invariant} EOI {comp1} {compSign} {comp2} DO
                               {this.printNode(node.body, false)}
-                            )
+                            ) {node.next && !(node.next instanceof EmptyNode) ? ';':''}
                         </div>
                 )
 
@@ -242,39 +232,65 @@ export class ProgramBlock extends React.Component{
                 let comp1 = node.compVar1 ? node.compVar1 : node.compConst1;
                 let compSign = node.compSign;
                 let comp2 = node.compVar2 ? node.compVar2 : node.compConst2;
+                let trueClr = getColor(node.trueBranch.index);
+                const trueBranchColor = {
+                    borderColor: trueClr,
+                    background: hexToRGBA(trueClr, 0.15)
+                };
+                let flsClr = getColor(node.falseBranch.index);
+                const falseBranchColor = {
+                    borderColor: flsClr,
+                    background: hexToRGBA(flsClr, 0.15)
+                };
 
                 return (
                     extract ?
-                        <div>
-                            ( {comp1} {compSign} {comp2} ->
-                                {node.trueBranch.enablePrecondition ? node.trueBranch.precondition :
-                                    node.next.enablePrecondition ? this.printWP(node.trueBranch, false) :
-                                        <div> wp{node.trueBranch.index}( <br/>
-                                            {this.printNode(node.trueBranch, false)} <br/>
-                                            {this.printWP(node.next, false)} <br/>
-                                            )
-                                        </div>
-                                }
-                            )<br />
-                              && <br />
-                            ( !( {comp1} {compSign} {comp2} ) ->
-                                {node.falseBranch.enablePrecondition ? node.falseBranch.precondition :
-                                    node.next.enablePrecondition ? this.printWP(node.falseBranch, false) :
-                                        <div> wp{node.falseBranch.index}( <br/>
-                                            {this.printNode(node.falseBranch, false)} <br/>
-                                            {this.printWP(node.next, false)} <br/>
-                                            )
-                                        </div>
-                                }
-                            )
+                        <div key={node.index}>
+                            <div className='branch_wrapper'>
+                                ({comp1} {compSign} {comp2} ->
+                                <div className='branch'>
+                                    {node.trueBranch.enablePrecondition ? <div>&nbsp;{node.trueBranch.precondition}</div> :
+                                        node.next.enablePrecondition ? this.printWP(node.trueBranch, false) :
+                                            <div style={trueBranchColor}
+                                                className='inactive_button'>
+                                                     wp{node.trueBranch.index}(
+                                                <div className='solid_program'>
+                                                    {this.printNode(node.trueBranch, false)}
+                                                </div>&nbsp;&nbsp;;
+                                                {this.printWP(node.next, false)}
+                                                )
+                                            </div>
+                                    }
+                                </div>
+                                )
+                            </div> <br/>
+                              && <br/>
+                            <div className='branch_wrapper'>
+                                (!({comp1} {compSign} {comp2}) ->
+                                <div className='branch'>
+                                    {node.falseBranch.enablePrecondition ? <div>&nbsp;{node.falseBranch.precondition}</div> :
+                                        node.next.enablePrecondition ? this.printWP(node.falseBranch, false) :
+                                            <div style={falseBranchColor}
+                                                className='inactive_button'>
+                                                    wp{node.falseBranch.index}(
+                                                <div className='solid_program'>
+                                                    {this.printNode(node.falseBranch, false)}
+                                                </div>&nbsp;&nbsp;;
+                                                {this.printWP(node.next, false)}
+                                                )
+                                            </div>
+                                    }
+                                </div>
+                                )
+                            </div>
                         </div>
                         :
-                        <div>
+                        <div key={node.index}>
                             (IF {comp1} {compSign} {comp2} THEN
                               {this.printNode(node.trueBranch, false)}
                             ELSE
                               {this.printNode(node.falseBranch, false)}
-                            )
+                            ) {node.next && !(node.next instanceof EmptyNode) ? ';':''}
                         </div>
                 )
             }
@@ -297,18 +313,30 @@ export class ProgramBlock extends React.Component{
 }
 
 function getPostcondition(node) {
-
-    let nodee = node;
-
-    // do {
-    //     nodee = nodee.next;
-    // } while (!nodee.enablePrecondition);
-
     do {
-        nodee = nodee.next;
-    } while (!(nodee instanceof EmptyNode));
+        node = node.next;
+    } while (!(node instanceof EmptyNode));
 
-    return nodee.precondition;
+    return node.precondition;
+}
+
+export function putEmptyNode(node, precondition) {
+    while (node.next) node = node.next;
+    if (node instanceof ConditionNode) {
+        putEmptyNode(node.trueBranch, precondition);
+        putEmptyNode(node.falseBranch, precondition);
+    }
+    let emptyNode = new EmptyNode();
+    emptyNode.setPrecondition(precondition);
+    node.next = emptyNode;
+}
+
+function hexToRGBA(hex, alpha) {
+    let r = parseInt(hex.slice(1, 3), 16),
+        g = parseInt(hex.slice(3, 5), 16),
+        b = parseInt(hex.slice(5, 7), 16);
+
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
 }
 
 function getColor(number) {

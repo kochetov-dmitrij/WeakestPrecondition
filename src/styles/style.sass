@@ -92,13 +92,16 @@ body
 			font-family: $font_primary
 
 .transition_container
-	padding: 10px 0 10px
+	padding: 10px
 	border-bottom: 5px solid $color_button
-	text-align: center
+	//text-align: center
 
 	.transition
 		display: inline-block
 		user-select: none
+
+		.third_block
+			display: inline-block
 
 		.button_next_wp, .solid_program, .wp_wrapper, .program_block, .eq
 			display: inline-block
@@ -108,44 +111,90 @@ body
 
 		.program_block
 			display: inline-block
-			padding: 0.5em 2em 0.5em 1em
+			padding: 0.5em 1em 0.5em 1em
 			background-color: $color_background_code
+			margin: 5px 0
 
 			.precondition
 				color: $color_font_primary
 				line-height: 1.4
 				font-family: $font_code
+				display: inline-block
+				margin-right: 1em
+				user-select: text
+
+			.substitute_button
+				display: inline-block
+				border: none
+				color: $color_font_primary
+				padding: 8px
+				outline: none
+				font-family: $font_button
+				font-weight: bold
+				user-select: none
+
+				&:hover, &:active
+					background-color: $color_button_alt
+					cursor: pointer
 
 
 			.wp_wrapper, .solid_program
 				line-height: 1.4
 				font-family: $font_code
 
+			.calculated_precondition
+				display: inline-block
+				font-family: $font_code
+				color: $color_font_primary
+				border: 5px solid
+				padding: 0.2em 0.5em
+				margin: 5px 0.5em 5px 0.5em
+
 			.button_next_wp
 				border: none
 				padding: 0.5em 0 0.5em
 				outline: none
-				margin: 5px 0 5px 1em
+				margin: 5px 0.5em 5px 0.5em
 
 				&:hover, &:active
 					cursor: pointer
 
 				.solid_program
 					background-color: $color_background_code
-					padding: 0.5em 1em 0.5em 0
-					margin-left: 1em
+					padding: 0.2em 1em 0.2em 0
+					margin-left: 0.5em
 					text-align: left
 
 			.wp_wrapper
-				margin-left: 1em
-				margin-right: 1em
+				margin: 0 1em
 				color: $color_font_primary
 
 			.block
-				margin-left: 1em
+				margin: 0 0 0 1em
 				color: $color_font_primary
+				line-height: 1.4
+				font-family: $font_code
+
+				.branch_wrapper
+					display: inline-block
+
+					.branch
+						display: inline-block
+						vertical-align: middle
 
 		.eq
-			margin: 0 1em 0
+			margin: 0 0.5em 0
 			font-size: 40pt
 			font-weight: bold
+
+.inactive_button
+	display: inline-block
+	border: 5px solid
+	padding: 0.5em 1em 0.5em 1em
+	margin: 5px 1em
+
+	.solid_program
+		background-color: $color_background_code
+		padding: 0.2em 1em 0.2em 0
+		margin-left: 0.5em
+		text-align: left

@@ -41,7 +41,7 @@ export class EmptyNode extends Node {
     }
 
     isLeaf() {
-        throw new Error('chtoto poshlo ne tak');
+        throw new Error('Empty node can\'t be a leaf node. Its parent is a leaf node.');
     }
 
     setPrecondition(precondition) {
@@ -142,11 +142,9 @@ export class ConditionNode extends Node {
         this.precondition =
             '((' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
                 trueBranch.precondition +
-            ') && ( !(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
+            ') && (!(' + (compVar1 ? compVar1 : compConst1) + ' ' + compSign + ' ' + (compVar2 ? compVar2 : compConst2) + ') -> ' +
                 falseBranch.precondition +
             '))';
-
-        console.log(this.precondition);
     }
 
     canEnablePrecondition() {
@@ -179,7 +177,7 @@ export class CycleNode extends Node {
         return true;
     }
 
-    setPrecondition(postCondition) {
+    setPrecondition() {
         this.precondition = this.invariant;
     }
 
