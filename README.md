@@ -7,10 +7,10 @@ Environment is a browser
 ### What was used
 There is being used React framework, JavaScript
 
-# Our progress
-### What has done for deadline of 15 June
- * There was implemented a parser of code written in TEL programming language to create tree of tokens
- * Visualization of the process of the weakest precondition's unfolding
+### Work process
+You enter a program in TEL programming language and a postcondition for the program, after that press button, and you will see
+first step of computing of the weakest precondition using special notation, to proceed process of computing choose appropriate
+block of 'wp[Index]' and click that, you will see next step, when a precondition computing for a block is completed, there is a
+button '=Substitute all wp[Index]=', when it is pressed, you can see how all occurrences of current block will be replaced with
+computed precondition for the 'wp[Index]' block
 
-### What has not completed yet
- * Computing of the weakest precondition (back passing)

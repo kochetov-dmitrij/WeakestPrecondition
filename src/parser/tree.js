@@ -88,7 +88,7 @@ export class AssignmentNode extends Node {
         while ((index = postCondition.indexOf(varLeft, beginWith)) !== -1) {
             if ((index === 0 || postCondition[index-1] === ' ' || postCondition[index- 1] === '(') &&
                 (index + varLeft.length === postCondition.length || postCondition[index + varLeft.length] === ' ' || postCondition[index + varLeft.length] === ')')) {
-                let firstPart = postCondition.slice(0, index) + ' (';
+                let firstPart = postCondition.slice(0, index) + '(';
                 for (let i = 0; i < rightPart.length; ++i) {
                     firstPart += rightPart[i];
                 }
