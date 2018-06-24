@@ -7,7 +7,9 @@ export class CodeForm extends React.Component {
         return (
             <form className='submit_form' onSubmit={(e) => this.props.onSubmit(e)}>
                 <textarea
-                    className='area program'
+                    className='area'
+                    wrap="off"
+                    rows={30}
                     spellCheck='false'
                     placeholder='Enter your code here'
                     name='code'
@@ -15,7 +17,8 @@ export class CodeForm extends React.Component {
                     onChange={(e) => this.props.onChange(e)}
                 />
                 <textarea
-                    className='area condition'
+                    className='area'
+                    rows={3}
                     spellCheck='false'
                     placeholder='Enter post condition for the program here'
                     name='condition'

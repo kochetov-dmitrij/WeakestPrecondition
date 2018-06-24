@@ -40,6 +40,7 @@ export class EmptyNode extends Node {
         this.enablePrecondition = true;
     }
 
+    // noinspection JSMethodCanBeStatic
     isLeaf() {
         throw new Error('Empty node can\'t be a leaf node. Its parent is a leaf node.');
     }
@@ -123,6 +124,7 @@ export class ConditionNode extends Node {
         this.parentIndex = params.parentIndex;
     }
 
+    // noinspection JSMethodCanBeStatic
     isLeaf() {
         return false;
     }
@@ -173,6 +175,7 @@ export class CycleNode extends Node {
         this.parentIndex = params.parentIndex;
     }
 
+    // noinspection JSMethodCanBeStatic
     isLeaf() {
         return true;
     }
@@ -181,6 +184,7 @@ export class CycleNode extends Node {
         this.precondition = this.invariant;
     }
 
+    // noinspection JSMethodCanBeStatic, JSUnusedGlobalSymbols
     canEnablePrecondition() {
         return true;
     }
