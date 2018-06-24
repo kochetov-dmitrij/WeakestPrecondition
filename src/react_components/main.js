@@ -45,7 +45,7 @@ export class MainComponent extends React.Component {
         });
     }
 
-    handleBack(e) {
+    handleBack() {
         this.setState({
             tree: null,
         });

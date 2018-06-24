@@ -1,5 +1,4 @@
 import {parseBestOption} from './bestOption'
-import {Tree} from "./tree";
 
 function parseAsConstant(formula) {
     let regexConst = /^\s*(-?[0-9]+)((?:[^a-z][\s\S]*)|)$/;
@@ -225,12 +224,3 @@ export function parseFormula(formula) {
         exceptionPosition: formulaLength - excPosFromEnd,
     };
 }
-
-
-
-
-let form = parseAsFormula('  a  ');
-
-let a=1;
-
-

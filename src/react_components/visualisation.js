@@ -56,11 +56,30 @@ export class Scroll extends React.Component{
             </div>
         );
 
+        let lastNode = this.state.transitions[this.state.transitions.length - 1];
+        let message = '';
+        if ((lastNode instanceof AssignmentNode) && lastNode.next && !(lastNode.next instanceof EmptyNode)) {
+            message = 'wp((α;β),ψ) = wp(α,wp(β,ψ)) ***WHERE*** α,β - programs, ψ - postcondition'
+        } else if (lastNode instanceof ConditionNode) {
+            message = 'wp((if φ then α else β),ψ) = (φ -> wp(α,ψ)) & (-φ -> wp(β,ψ)) ***WHERE*** φ - condition, α,β - programs, ψ - postcondition'
+        } if (lastNode instanceof CycleNode) {
+            message = 'wp((while [l] φ do α),ψ) = l ***WHERE*** l - invariant, φ - cycle condition, α - program, ψ - postcondition'
+        }
+        let highlight = {
+            background: getColor(lastNode.index)
+        };
+
         return (
             <div>
-                <button className='button' onClick={() => this.props.onBack()}>
-                    &lt;= BACK
-                </button>
+                <div className='bar'>
+                    <button className='button' onClick={() => this.props.onBack()}>
+                        &lt;= BACK
+                    </button>
+                    <div className='message' style={highlight}>
+                        {message}
+                    </div>
+                    <div className='clear'/>
+                </div>
                 {listItems}
             </div>
         )
@@ -127,7 +146,7 @@ export class ProgramBlock extends React.Component{
             backgroundColor: clr,
         };
         const calculatedPreconditionColor = {
-            'border-color': clr,
+            borderColor: clr,
         };
 
         if (!node.precondition && (node.isLeaf() || this.props.canSubstitute)) node.setPrecondition();
@@ -174,7 +193,7 @@ export class ProgramBlock extends React.Component{
                             {this.printNode(node, extract)}
                         </div>
                         <div className="wp_wrapper">
-                            ; {getPostcondition(node)})
+                            , {getPostcondition(node)})
                         </div>
                     </button>
         )
@@ -198,7 +217,7 @@ export class ProgramBlock extends React.Component{
                 return (
                     extract ?
                         <div key={node.index}>
-                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''} ;
+                            {u} := {x1}{sign ? (' ' + sign + ' ' + x2) : ''} ,
                             {!node.isLeaf() ? <div style={{display:'inline-block'}}>{this.printWP(node.next, false)}</div> : ''}
                         </div>
                         :
@@ -249,14 +268,14 @@ export class ProgramBlock extends React.Component{
                             <div className='branch_wrapper'>
                                 ({comp1} {compSign} {comp2} ->
                                 <div className='branch'>
-                                    {node.trueBranch.enablePrecondition ? <div>&nbsp;{node.trueBranch.precondition}</div> :
+                                    {node.trueBranch.enablePrecondition ? <div>&nbsp,{node.trueBranch.precondition}</div> :
                                         node.next.enablePrecondition ? this.printWP(node.trueBranch, false) :
                                             <div style={trueBranchColor}
                                                 className='inactive_button'>
                                                      wp{node.trueBranch.index}(
                                                 <div className='solid_program'>
                                                     {this.printNode(node.trueBranch, false)}
-                                                </div>&nbsp;&nbsp;;
+                                                </div>&nbsp;&nbsp;,
                                                 {this.printWP(node.next, false)}
                                                 )
                                             </div>
@@ -268,14 +287,14 @@ export class ProgramBlock extends React.Component{
                             <div className='branch_wrapper'>
                                 (!({comp1} {compSign} {comp2}) ->
                                 <div className='branch'>
-                                    {node.falseBranch.enablePrecondition ? <div>&nbsp;{node.falseBranch.precondition}</div> :
+                                    {node.falseBranch.enablePrecondition ? <div>&nbsp,{node.falseBranch.precondition}</div> :
                                         node.next.enablePrecondition ? this.printWP(node.falseBranch, false) :
                                             <div style={falseBranchColor}
                                                 className='inactive_button'>
                                                     wp{node.falseBranch.index}(
                                                 <div className='solid_program'>
                                                     {this.printNode(node.falseBranch, false)}
-                                                </div>&nbsp;&nbsp;;
+                                                </div>&nbsp;&nbsp;,
                                                 {this.printWP(node.next, false)}
                                                 )
                                             </div>
@@ -294,6 +313,7 @@ export class ProgramBlock extends React.Component{
                         </div>
                 )
             }
+            return '';
         });
 
         return (

@@ -18,8 +18,23 @@ body
 	background-color: $color_background_primary
 	color: $color_font_primary
 
+.bar
+	margin: 10px 0
+
+	.message
+		font-size: 1.5em
+		display: inline-block
+		padding: 8px
+		font-family: $font_button
+		line-height: 1.4
+		float: right
+		min-height: 33px
+
+.clear
+	clear: both
+
 .button
-	display: block
+	display: inline-block
 	background-color: $color_button
 	border: none
 	color: $color_font_button
@@ -27,37 +42,47 @@ body
 	outline: none
 	font-family: $font_button
 	user-select: none
+	line-height: 1.4
 
 	&:hover, &:active
 		background-color: $color_button_alt
 		cursor: pointer
 
+::-webkit-scrollbar
+	width: 6px
+	height: 6px
+	background-color: $color_background_code
+
+::-webkit-scrollbar-thumb
+	border-radius: 3px
+	background-color: $color_font_button
+
+::-webkit-scrollbar-corner
+	display: none
+
 .parser_block
-	display: inline-block
+	display: block
 
 	.submit_form
 		display: block
 		float: left
 		margin: 10px
+		width: 50%
 
 		.area
 			display: block
-			min-width: 40em
+			resize: none
+			width: 100%
 			background-color: $color_background_code
-			border: none
 			color: $color_font_primary
 			outline: none
-			padding: 8px
 			line-height: 1.4
 			font-family: $font_code
 			margin-bottom: 4px
-			width: 100%
-
-		.program
-			min-height: 30em
-
-		.condition
-			min-height: 1.5em
+			box-sizing: border-box
+			border-style: solid
+			border-color: $color_background_code
+			border-width: 1em 0.5em 0.5em 1em
 
 		.button
 			width: 100%
@@ -93,7 +118,7 @@ body
 
 .transition_container
 	padding: 10px
-	border-bottom: 5px solid $color_button
+	border-top: 5px solid $color_button
 	//text-align: center
 
 	.transition
