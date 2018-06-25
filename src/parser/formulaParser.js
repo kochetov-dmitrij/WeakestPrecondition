@@ -36,15 +36,17 @@ function parseAsVariableOrConstant(formula) {
 
 function parseAsComplexExpressionWithParentheses(formula) {
     let res,
-        parsed;
+        parsed,
+        negation;
 
-    let regexExpression1 = /^\s*\(([\s\S]*)$/;
+    let regexExpression1 = /^\s*(!?)\(([\s\S]*)$/;
     res = formula.match(regexExpression1);
     if (!res) return {
         exception: 'Expected \'(\'',
         excPosFromEnd: formula.length
     };
-    formula = res[1];
+    negation = res[1];
+    formula = res[2];
 
     res = parseAsComplexExpression(formula);
     if (res.exception) return res;
@@ -61,7 +63,7 @@ function parseAsComplexExpressionWithParentheses(formula) {
 
     return {
         formula: formula,
-        parsed: '(' + parsed + ')'
+        parsed: negation + '(' + parsed + ')'
     }
 }
 
@@ -134,15 +136,17 @@ function parseAsComplexComparison(formula) {
 
 function parseAsFormulaWithParentheses(formula) {
     let res,
-        parsed;
+        parsed,
+        negation;
 
-    let regexExpression1 = /^\s*\(([\s\S]*)$/;
+    let regexExpression1 = /^\s*(!?)\(([\s\S]*)$/;
     res = formula.match(regexExpression1);
     if (!res) return {
         exception: 'Expected \'(\'',
         excPosFromEnd: formula.length
     };
-    formula = res[1];
+    negation = res[1];
+    formula = res[2];
 
     res = parseAsFormula(formula);
     if (res.exception) return res;
@@ -159,7 +163,7 @@ function parseAsFormulaWithParentheses(formula) {
 
     return {
         formula: formula,
-        parsed: '(' + parsed + ')'
+        parsed: negation + '(' + parsed + ')'
     }
 }
 

@@ -268,7 +268,7 @@ export class ProgramBlock extends React.Component{
                             <div className='branch_wrapper'>
                                 ({comp1} {compSign} {comp2} ->
                                 <div className='branch'>
-                                    {node.trueBranch.enablePrecondition ? <div>&nbsp,{node.trueBranch.precondition}</div> :
+                                    {node.trueBranch.enablePrecondition ? <div>&nbsp;{node.trueBranch.precondition}</div> :
                                         node.next.enablePrecondition ? this.printWP(node.trueBranch, false) :
                                             <div style={trueBranchColor}
                                                 className='inactive_button'>
@@ -287,7 +287,7 @@ export class ProgramBlock extends React.Component{
                             <div className='branch_wrapper'>
                                 (!({comp1} {compSign} {comp2}) ->
                                 <div className='branch'>
-                                    {node.falseBranch.enablePrecondition ? <div>&nbsp,{node.falseBranch.precondition}</div> :
+                                    {node.falseBranch.enablePrecondition ? <div>&nbsp;{node.falseBranch.precondition}</div> :
                                         node.next.enablePrecondition ? this.printWP(node.falseBranch, false) :
                                             <div style={falseBranchColor}
                                                 className='inactive_button'>
